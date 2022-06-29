@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true,
+      "outDir": "./dist",
+      "target": "es5",
+      "module": "commonjs",
+      "strict": false,
+      "sourceMap": true,
+      "downlevelIteration": true,
+      "types": [
+        "node"
+      ],
+      "lib": [
+        "es2015",
+        "dom"
+      ],
+      "typeRoots": [
+        "node_modules/@types"
+      ]
+    },
+    "include": [
+      "./src/*.ts",
+      "./src/**/*.ts"
+    ]
+  }
