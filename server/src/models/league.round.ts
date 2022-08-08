@@ -2,16 +2,24 @@ import * as mongoose from "mongoose";
 
 export interface ILeagueRound extends mongoose.Document {
   date: string;
-  team: string;
-  score: number;
+  roundNo: number;
+  // team: string;
+  // score: number;
+  white: number;
+  blue: number;
+  red: number;
   createdAt?: Date;
   modifiedAt?: Date;
 }
 
 export const leagueRoundSchema = new mongoose.Schema({
   date: String,
-  team: String,
-  score: Number,
+  roundNo: Number,
+  // team: String,
+  // score: Number,
+  white: Number,
+  blue: Number,
+  red: Number,
   createdAt: Date,
   modifiedAt: { type: Date, required: false },
 });

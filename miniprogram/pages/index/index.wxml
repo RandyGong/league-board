@@ -1,0 +1,217 @@
+<!--index.wxml-->
+<view class="container">
+  <!-- <view class="userinfo">
+    <block wx:if="{{canIUseOpenData}}">
+      <view class="userinfo-avatar" bindtap="bindViewTap">
+        <open-data type="userAvatarUrl"></open-data>
+      </view>
+      <open-data type="userNickName"></open-data>
+    </block>
+    <block wx:elif="{{!hasUserInfo}}">
+      <button wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile"> 获取头像昵称 </button>
+      <button wx:elif="{{canIUse}}" open-type="getUserInfo" bindgetuserinfo="getUserInfo"> 获取头像昵称 </button>
+      <view wx:else> 请使用1.4.4及以上版本基础库 </view>
+    </block>
+    <block wx:else>
+      <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
+      <text class="userinfo-nickname">{{userInfo.nickName}}</text>
+    </block>
+  </view>
+  <view class="usermotto">
+    <text class="user-motto">{{motto}}</text>
+  </view> -->
+
+
+
+  <view>
+    <view style="font-size:50rpx;line-height:34px">土拨鼠足球俱乐部</view>
+    <text style="font-size: 37rpx;">2022赛季夏季联赛积分榜</text>
+  </view>
+
+  <view style="margin-top: 40px;font-size: 37rpx">总积分</view>
+  <view class='history-table-wrap' style="margin-top: 10px">
+    <view class="table">
+      <view class="tr">
+        <view class="th date">日期</view>
+        <!-- <view class="th th2">时间</view> -->
+        <view class="th team" style="color:white">白队</view>
+        <view class="th team" style="color:blue">蓝队</view>
+        <view class="th team" style="color:rgb(255, 0, 85)">红队</view>
+      </view>
+
+      <block wx:if="{{!leagueMerged}}" class="tr">
+        <view class="no-data">暂无数据</view>
+      </block>
+      <block wx:if="{{leagueMerged && leagueMerged.hasValue}}">
+        <view class="tr">
+          <view class="td date">{{leagueMerged.till}}</view>
+          <view class="td team">{{leagueMerged.white}}</view>
+          <view class="td team">{{leagueMerged.blue}}</view>
+          <view class="td team">{{leagueMerged.red}}</view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+
+  <view style="margin-top: 50px;font-size: 37rpx">每轮战况</view>
+
+  <view class='history-table-wrap' style="margin-top: 10px">
+    <view class="table">
+      <view class="tr">
+        <view class="th date">日期</view>
+        <!-- <view class="th th2">时间</view> -->
+        <view class="th team" style="color:white">白队</view>
+        <view class="th team" style="color:blue">蓝队</view>
+        <view class="th team" style="color:rgb(255, 0, 85)">红队</view>
+      </view>
+
+      <block wx:if="{{leagueRounds && !leagueRounds.length && !isEditMode}}" class="tr">
+        <view class="no-data">暂无数据</view>
+      </block>
+      <block wx:if="{{leagueRounds && leagueRounds.length}}">
+        <view class="tr" wx:for="{{leagueRounds}}" wx:key="date" bindtap="editRound" data-round="{{item}}">
+          <view class="td date">
+            <!-- <icon wx:if="{{isEditMode}}" style="vertical-align: middle;" type="success" size="21"></icon> -->
+            <view wx:if="{{isEditMode}}" class="editing-icon"></view>
+            {{item.date}}, 第{{item.roundNo}}轮
+          </view>
+          <view class="td team">{{item.white}}</view>
+          <view class="td team">{{item.blue}}</view>
+          <view class="td team">{{item.red}}</view>
+        </view>
+      </block>
+
+      <view class="tr" wx:if="{{isEditMode}}">
+        <view class="td" style="color:#59bd58;font-size: 16px;" bindtap="createRound">
+          +添加数据
+        </view>
+      </view>
+    </view>
+  </view>
+
+
+
+  <view style="margin-top: 50px;font-size: 37rpx;">球星榜</view>
+  <view class='history-table-wrap' style="margin-top: 10px;margin-bottom: 100rpx;">
+    <view class="table">
+      <view class="tr">
+        <view class="th player">球员</view>
+        <!-- <view class="th th2">时间</view> -->
+        <view class="th goal" style="color:white" bindtap="sortByGoal">进球 <text wx:if="{{playerSortedBy==='goal'}}">↓</text></view>
+        <view class="th goal" style="color:blue" bindtap="sortByAssist">助攻 <text wx:if="{{playerSortedBy==='assist'}}">↓</text></view>
+      </view>
+
+      <block wx:if="{{playerRank && !playerRank.length && !isEditMode}}" class="tr">
+        <view class="no-data">暂无数据</view>
+      </block>
+      <block wx:if="{{playerRank && playerRank.length}}">
+        <view class="tr" wx:for="{{playerRank}}" wx:key="name" bindtap="editPlayer" data-player="{{item}}">
+          <view class="td player">
+            <view wx:if="{{isEditMode}}" class="editing-icon"></view>
+            {{item.name}}
+          </view>
+          <view class="td goal">{{item.goal}}</view>
+          <view class="td goal">{{item.assist}}</view>
+        </view>
+      </block>
+
+      <view class="tr" wx:if="{{isEditMode}}">
+        <view class="td" style="color:#59bd58;font-size: 16px;" bindtap="createPlayer">
+          +添加数据
+        </view>
+      </view>
+    </view>
+  </view>
+
+
+  <view wx:if="{{!isEditMode}}" class="edit" bindtap="showLogin" style="position: absolute; right: 50rpx; bottom: 50rpx">
+  </view>
+
+  <!-- <view class='modal-mask' wx:if='{{!editPlayerHidden}}' bindtap='clickMask'>
+    <view class='modal-content'>
+      <scroll-view scroll-y class='main-content'>
+        <slot></slot>
+        <view>姓名</view>
+
+        <input class="input" adjust-position="false" always-embed="true" maxlength="20" style="bottom: {{inputBottom}}px" bindfocus="foucus" bindblur="blur" value="{{editingPlayer.name}}" data-item="name" bindinput="editPlayerNameInput" />
+      </scroll-view>
+      <view class='modal-footer'>
+        <view wx:if='{{!single}}' class='cancel-btn' bindtap='cancel'>取消</view>
+        <view class='confirm-btn' bindtap='confirm'>确定 </view>
+      </view>
+    </view>
+  </view> -->
+
+
+
+  <modal hidden="{{loginHidden}}" confirm-text="确定" cancel-text="好吧我不是主席" bindcancel="cancelLogin" bindconfirm="login" no-cancel="{{nocancel}}">
+    <view>只有主席才能改数据，请输入主席口令</view>
+    <input type="text" style="margin-top:8px;border:1px solid green;height:40rpx" password bindinput="loginInput" />
+  </modal>
+
+  <modal hidden="{{editRoundHidden}}" confirm-text="确定" cancel-text="取消" bindcancel="cancelLogin" bindconfirm="editRoundConfirm" no-cancel="{{nocancel}}">
+    <view>日期</view>
+    <view class="section">
+      <picker mode="date" value="{{editingRound.date}}" start="2022-06-01" end="2023-12-31" bindchange="bindDateChange">
+        <view class="picker">
+          <input adjust-position fixed type="text" class="input section__title" value="{{editingRound.date}}" bindtap="showRoundDatePicker" disabled />
+        </view>
+      </picker>
+    </view>
+
+    <view style="margin-top: 22rpx;">轮次</view>
+    <input adjust-position auto-height fixed type="digit" class="input" maxlength="3" value="{{editingRound.roundNo}}" data-item="roundNo" bindinput="editRoundInput" />
+    <view style="margin-top: 22rpx;">白队得分</view>
+    <input adjust-position auto-height fixed type="digit" class="input" maxlength="3" value="{{editingRound.white}}" data-item="white" bindinput="editRoundInput" />
+    <view style="margin-top: 22rpx;color:blue">蓝队得分</view>
+    <input adjust-position auto-height fixed type="digit" class="input" maxlength="3" value="{{editingRound.blue}}" data-item="blue" bindinput="editRoundInput" />
+    <view style="margin-top: 22rpx;color:red">红队得分</view>
+    <input adjust-position auto-height fixed type="digit" class="input" maxlength="3" value="{{editingRound.red}}" data-item="red" bindinput="editRoundInput" />
+
+    <button wx:if="{{!editingRound.isNew}}" type="warn" bindtap="deleteRound" style="margin-top: 20px;background-color:#e64340;color:white;width:100%;">删除</button>
+  </modal>
+
+
+  <modal hidden="{{editPlayerHidden}}" confirm-text="确定" cancel-text="取消" bindcancel="cancelLogin" bindconfirm="editPlayerConfirm" no-cancel="{{nocancel}}">
+    <view>姓名</view>
+
+    <!-- <input class="input" adjust-position="false" always-embed="true" maxlength="10" value="{{editingPlayer.name}}" data-item="name" bindinput="editPlayerNameInput" /> -->
+
+    <view>
+      <input always-embed adjust-position="{{false}}" class="input" maxlength="10" value="{{editingPlayer.name}}" data-item="name" bindinput="editPlayerNameInput"/>
+
+      <view style="margin-top: 22rpx;">进球</view>
+      <input always-embed adjust-position="{{false}}" type="digit" class="input" maxlength="3" value="{{editingPlayer.goal}}" data-item="goal" bindinput="editPlayerInput" />
+      <view style="margin-top: 22rpx;color:blue">助攻</view>
+      <input always-embed adjust-position="{{false}}" type="digit" class="input" maxlength="3" value="{{editingPlayer.assist}}" data-item="assist" bindinput="editPlayerInput" />
+    </view>
+
+    <button wx:if="{{!editingPlayer.isNew}}" type="warn" bindtap="deletePlayer" style="margin-top: 20px;background-color:#e64340;color:white;width:100%;">删除</button>
+
+  </modal>
+
+
+  <!-- <view>
+    <modalView show="{{!editPlayerHidden}}" bindcancel="modalCancel" bindconfirm='modalConfirm' showCancel>
+      <view class='modal-content'>
+        <scroll-view scroll-y class='main-content'>
+          <view>姓名</view>
+
+          <view>
+            <textarea always-embed	adjust-position="{{false}}" class="input" maxlength="10" value="{{editingPlayer.name}}" data-item="name" bindinput="editPlayerNameInput"></textarea>
+
+            <view style="margin-top: 22rpx;">进球</view>
+            <textarea always-embed	adjust-position="{{false}}" type="digit" class="input" maxlength="3" value="{{editingPlayer.goal}}" data-item="goal" bindinput="editPlayerInput" />
+            <view style="margin-top: 22rpx;color:blue">助攻</view>
+            <textarea always-embed	adjust-position="{{false}}" type="digit" class="input" maxlength="3" value="{{editingPlayer.assist}}" data-item="assist" bindinput="editPlayerInput" />
+          </view>
+
+          <button wx:if="{{!editingPlayer.isNew}}" type="warn" bindtap="deletePlayer" style="margin-top: 20px;background-color:#e64340;color:white;width:100%;">删除</button>
+        </scroll-view>
+      </view>
+    </modalView>
+  </view> -->
+
+
+</view>

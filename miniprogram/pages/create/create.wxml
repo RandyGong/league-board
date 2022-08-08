@@ -1,0 +1,145 @@
+<view class="create">
+  <view class="title-wrap">
+      <view class="title">发布比赛</view>
+      <view class="tip">发布一场新比赛，开开心心约球来~</view>
+    </view>
+
+
+    <view class="panel m-t-1">
+      <view class="panel-title">比赛信息</view>
+
+      <view class="field m-t-1">
+        <text>比赛标题</text>
+        <input adjust-position fixed type="text" class="value" value="{{game.title}}" data-field="title" bindinput="bindGameInput" />
+      </view>
+
+      <view class="field">
+        <text>比赛日期</text>
+        <picker mode="date" value="{{game.date.date}}" start="2022-06-01" end="2223-12-31" bindchange="bindDateChange">
+          <view class="flex">
+            <input adjust-position fixed type="text" class="value" value="{{game.date.date}}" style="width: 95px;" disabled />
+            <text class="value-tip">({{game.date.dateWeekday}})</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <text>比赛时间</text>
+        <picker mode="multiSelector" bindtap="getGameTime" bindchange="bindMultiPickerChange" bindcolumnchange="bindMultiPickerColumnChange" value="{{timeIndex}}" range="{{timeArray}}">
+          <view class="picker">
+            <text class="value">{{game.date.time}}</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <text>比赛性质</text>
+        <picker value="{{gameType.index}}" range="{{gameType.types}}" bindchange="bindGameTypeChange">
+          <view class="picker">
+            <text class="value">{{gameType.types[gameType.index]}}</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <text>比赛场地</text>
+        <input adjust-position fixed type="text" class="value" value="{{game.location.name}}" bindtap="showLocationMap" disabled />
+        <image src="../../images/map.png" style="position:absolute;right:0;top:8rpx; width:30px;height: 32px;" bindtap="showLocationMap"></image>
+      </view>
+
+      <view class="field">
+        <text>球场人制</text>
+        <picker value="{{aSideType.index}}" range="{{aSideType.types}}" bindchange="bindASideTypeChange">
+          <view class="picker">
+            <text class="value">{{aSideType.types[aSideType.index]}}</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <text>计划人数</text>
+        <input adjust-position fixed type="digit" class="value" value="{{game.plannedNumberOfPeople}}" data-field="plannedNumberOfPeople" data-type="digit" bindinput="bindGameInput" />
+      </view>
+    </view>
+
+    <view class="panel m-t-1">
+      <view class="panel-title">比赛费用</view>
+
+      <view class="field m-t-1">
+        <text>固定铁腿</text>
+        <input adjust-position fixed type="digit" class="value" value="{{game.fee.fixedMember}}" />
+      </view>
+
+      <view class="field">
+        <text>随机散客</text>
+        <input adjust-position fixed type="digit" class="value" value="{{game.fee.randomMember}}" />
+      </view>
+    </view>
+
+    <view class="panel m-t-1">
+      <view class="panel-title">注意事项</view>
+
+      <view class="field m-t-1">
+        <textarea always-embed adjust-position="{{false}}" class="input" maxlength="300" value="{{game.note}}" data-field="note" bindinput="bindGameInput" style="height: 48px;" />
+      </view>
+    </view>
+
+    <view class="m-t-1">
+      <button bindtap="publish" style="background-color:#5e9ef1;color:white;width:100%;">发布比赛</button>
+    </view>
+
+    <view class="panel m-t-1">
+      <view class="panel-title">报名情况</view>
+
+      <view>
+        <view class="panel-title m-t-2">
+          已报名 (共{{game.participants.confirmed.length}}人)
+        </view>
+
+        <view class="m-t-2">
+          <view class="flex space-around participant m-b-1">
+            <text class="bold">人员</text>
+            <text class="bold">已参与场次</text>
+          </view>
+
+          <view class="flex space-around participant participant-row {{index%2===0?'row1':'row2'}}" wx:for="{{game.participants.confirmed}}" wx:key="id" wx:for-index="index">
+            <text>{{item.name}}</text>
+            <text>{{item.count}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view>
+        <view class="panel-title m-t-3">待定 (共{{game.participants.tbd.length}}人)</view>
+
+        <view class="m-t-2">
+          <view class="flex space-around participant m-b-1">
+            <text class="bold">人员</text>
+            <text class="bold">事由</text>
+          </view>
+
+          <view class="flex space-around participant participant-row {{index%2===0?'tbd-row1':'tbd-row2'}}" wx:for="{{game.participants.tbd}}" wx:key="id" wx:for-index="index">
+            <text>{{item.name}}</text>
+            <text>{{item.reason}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view>
+        <view class="panel-title m-t-3">请假 (共{{game.participants.leave.length}}人)</view>
+
+        <view class="m-t-2">
+          <view class="flex space-around participant m-b-1">
+            <text class="bold">人员</text>
+            <text class="bold">事由</text>
+          </view>
+
+          <view class="flex space-around participant participant-row {{index%2===0?'leave-row1':'leave-row2'}}" wx:for="{{game.participants.leave}}" wx:key="id" wx:for-index="index">
+            <text>{{item.name}}</text>
+            <text>{{item.reason}}</text>
+          </view>
+        </view>
+      </view>
+
+    </view>
+</view>

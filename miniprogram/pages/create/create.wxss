@@ -1,0 +1,76 @@
+.create {
+  background: linear-gradient(lightskyblue, pink);
+  height: 100%;
+  padding: 20rpx;
+  /* overflow: hidden; */
+
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.title-wrap {
+  padding: 20rpx 0;
+}
+
+.title {
+  font-weight: bold;
+}
+
+.tip {
+  font-size: x-small;
+}
+
+.field {
+  border-bottom: 1px solid lightgray;
+  display: flex;
+  padding: 16rpx 0;
+  gap: 50rpx;
+  position: relative;
+}
+
+.field .value {
+  color: gray;
+  width: 64%;
+}
+
+.field picker {
+  width: 64%;
+}
+
+.value-tip {
+  color: gray;
+}
+
+.participant text {
+  flex: 1;
+  text-align: center;
+}
+
+.participant-row {
+  padding: 14rpx 0;
+}
+
+.row1 {
+  background-color: rgb(184, 228, 255);
+}
+.row2 {
+  background-color: rgb(205, 236, 255);
+}
+
+.tbd-row1 {
+  background-color: rgb(253, 225, 174);
+}
+.tbd-row2 {
+  background-color: rgb(255, 238, 205);
+}
+
+.leave-row1 {
+  background-color: rgb(255, 214, 221);
+}
+.leave-row2 {
+  background-color: rgb(255, 228, 233);
+}
+
