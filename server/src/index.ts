@@ -7,6 +7,8 @@ const port = 3210;
 
 const playersRouter = require("./routes/player");
 const leagueRoundRouter = require("./routes/league");
+const gameRouter = require("./routes/game");
+const commonRouter = require("./routes/common");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -14,6 +16,8 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/players", playersRouter);
 app.use("/league", leagueRoundRouter);
+app.use("/game", gameRouter);
+app.use("/common", commonRouter);
 
 mongoose
   .connect(

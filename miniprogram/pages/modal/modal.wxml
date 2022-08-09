@@ -1,4 +1,4 @@
-<view class='modal-mask' wx:if='{{show}}' bindtap='clickMask'>
+<!-- <view class='modal-mask' wx:if='{{show}}' bindtap='clickMask'>
  <view class='modal-content'>
  <scroll-view scroll-y class='main-content'>
   <slot></slot>
@@ -8,4 +8,4 @@
   <view class='confirm-btn' bindtap='confirm'>确定 </view>
  </view>
  </view>
-</view>
+</view> -->

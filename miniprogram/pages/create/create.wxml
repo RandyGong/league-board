@@ -1,5 +1,36 @@
-<view class="create">
-  <view class="title-wrap">
+<view wx:if="{{!hasCurrentGame}}" style="height: 100%;width: 100%;padding:20rpx;box-sizing: border-box;overflow-y: auto; background-image: url(https://bpic.51yuansu.com/backgd/cover/00/14/67/5b83e59a43be4.jpg);background-size: cover;">
+  <!-- https://iti-images.s3.amazonaws.com/events/41e0d5c9-83e5-d188-24ae-ecf3f0fab88f.webp -->
+
+  <view style="position:relative;top:10%; width: 100%;color: white;">
+    <view class="title-wrap" style="text-align: center;">
+      <view class="title" style="font-size: 42rpx;">创建比赛</view>
+      <view class="tip m-t-1" style="font-size: 30rpx;">创建一场新比赛，开开心心约球来~</view>
+    </view>
+
+  </view>
+  <button bindtap="showLogin" style="background-color:#5e9ef1;color:white;width:calc(100% - 40rpx);position:absolute;bottom:40rpx">创建比赛</button>
+  
+  <login-modal hidden="{{loginHidden}}" bindOnLoginSuccess="showCreateView"></login-modal>
+
+</view>
+
+<view class="container">
+  <view class="userinfo">
+    <block wx:if="{{!hasUserInfo}}">
+      <button wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile"> 获取头像昵称 </button>
+      <button wx:else open-type="getUserInfo" bindgetuserinfo="getUserInfo"> 获取头像昵称1 </button>
+    </block>
+    <block wx:else>
+      <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
+      <text class="userinfo-nickname">{{userInfo.nickName}}</text>
+    </block>
+  </view>
+</view>
+
+
+<view class="create gradient">
+  <block wx:if="{{showGameDataView}}">
+    <view class="title-wrap">
       <view class="title">发布比赛</view>
       <view class="tip">发布一场新比赛，开开心心约球来~</view>
     </view>
@@ -58,7 +89,7 @@
 
       <view class="field">
         <text>计划人数</text>
-        <input adjust-position fixed type="digit" class="value" value="{{game.plannedNumberOfPeople}}" data-field="plannedNumberOfPeople" data-type="digit" bindinput="bindGameInput" />
+        <input adjust-position fixed type="digit" class="value" value="{{game.plannedNumberOfPeople}}" data-field="plannedNumberOfPeople" bindinput="bindGameInput" />
       </view>
     </view>
 
@@ -88,12 +119,12 @@
       <button bindtap="publish" style="background-color:#5e9ef1;color:white;width:100%;">发布比赛</button>
     </view>
 
-    <view class="panel m-t-1">
+    <view class="panel m-t-1 participant-gradient">
       <view class="panel-title">报名情况</view>
 
       <view>
-        <view class="panel-title m-t-2">
-          已报名 (共{{game.participants.confirmed.length}}人)
+        <view class="panel-title flex m-t-2">
+          <view class="title-dot confirmed-dot"></view>已报名 (共{{game.participants.confirmed.length}}人)
         </view>
 
         <view class="m-t-2">
@@ -110,7 +141,9 @@
       </view>
 
       <view>
-        <view class="panel-title m-t-3">待定 (共{{game.participants.tbd.length}}人)</view>
+        <view class="panel-title flex m-t-3">
+          <view class="title-dot tbd-dot"></view>待定 (共{{game.participants.tbd.length}}人)
+        </view>
 
         <view class="m-t-2">
           <view class="flex space-around participant m-b-1">
@@ -126,7 +159,9 @@
       </view>
 
       <view>
-        <view class="panel-title m-t-3">请假 (共{{game.participants.leave.length}}人)</view>
+        <view class="panel-title flex m-t-3">
+          <view class="title-dot leave-dot"></view>请假 (共{{game.participants.leave.length}}人)
+        </view>
 
         <view class="m-t-2">
           <view class="flex space-around participant m-b-1">
@@ -142,4 +177,6 @@
       </view>
 
     </view>
+  </block>
+
 </view>

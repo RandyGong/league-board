@@ -7,11 +7,15 @@ var mongoose = require("mongoose");
 var port = 3210;
 var playersRouter = require("./routes/player");
 var leagueRoundRouter = require("./routes/league");
+var gameRouter = require("./routes/game");
+var commonRouter = require("./routes/common");
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/players", playersRouter);
 app.use("/league", leagueRoundRouter);
+app.use("/game", gameRouter);
+app.use("/common", commonRouter);
 mongoose
     .connect("mongodb+srv://randygong:VXszhkgQS3CGB4L@cluster0.5mtzbpk.mongodb.net/league-board?retryWrites=true&w=majority")
     .then(function () {

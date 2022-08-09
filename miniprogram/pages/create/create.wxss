@@ -1,5 +1,4 @@
 .create {
-  background: linear-gradient(lightskyblue, pink);
   height: 100%;
   padding: 20rpx;
   /* overflow: hidden; */
@@ -11,12 +10,38 @@
   overflow-y: auto;
 }
 
+.gradient {
+  background: linear-gradient(lightskyblue, pink);
+}
+.participant-gradient {
+  /* background: linear-gradient(rgb(193, 231, 255), rgb(253, 201, 209)); */
+}
+
 .title-wrap {
   padding: 20rpx 0;
 }
 
 .title {
   font-weight: bold;
+}
+
+.title-dot {
+  width: 10rpx;
+  height: 40rpx;
+  margin-right: 10rpx;
+  border-radius: 10rpx;
+  position: relative;
+  top: 4rpx;
+}
+
+.confirmed-dot {
+  background-color: lightskyblue;
+}
+.tbd-dot {
+  background-color: rgb(255, 213, 136);
+}
+.leave-dot {
+  background-color: pink;
 }
 
 .tip {

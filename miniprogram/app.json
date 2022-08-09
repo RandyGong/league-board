@@ -1,8 +1,9 @@
 {
   "pages":[
+    "pages/create/create",
     "pages/index/index",
     "pages/logs/logs",
-    "pages/create/create"
+    "pages/game-list/game-list"
   ],
   "window":{
     "backgroundTextStyle":"light",
@@ -17,16 +18,22 @@
     "color": "#999",
     "list": [
       {
-        "pagePath": "pages/index/index",
-        "text": "首页",
-        "iconPath": "images/bang.png",
-        "selectedIconPath": "images/bang.png"
+        "pagePath": "pages/game-list/game-list",
+        "text": "往期比赛",
+        "iconPath": "images/list.png",
+        "selectedIconPath": "images/list.png"
       },
       {
         "pagePath": "pages/create/create",
-        "text": "我的",
+        "text": "创建比赛",
         "iconPath": "images/ball.png",
         "selectedIconPath": "images/ball.png"
+      },
+      {
+        "pagePath": "pages/index/index",
+        "text": "联赛积分榜",
+        "iconPath": "images/bang.png",
+        "selectedIconPath": "images/bang.png"
       }
     ]
   },

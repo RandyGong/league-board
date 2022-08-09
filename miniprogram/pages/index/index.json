@@ -1,5 +1,6 @@
 {
   "usingComponents": {
-    "modalView": "../modal/modal"
+    "modalView": "../modal/modal",
+    "login-modal": "../../components/login-modal/login-modal"
   }
 }

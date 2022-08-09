@@ -6,6 +6,7 @@ exports.playerDataSchema = new mongoose.Schema({
     name: String,
     goal: Number,
     assist: Number,
+    participationTimes: Number,
     createdAt: Date,
     modifiedAt: { type: Date, required: false },
 });

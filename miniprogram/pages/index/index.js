@@ -3,10 +3,8 @@
 import {
   modal,
   toast
-} from '../../utils/util'
-import {
-  request
-} from '../../utils/request'
+} from '../../utils/util';
+import {request} from '../../utils/request';
 
 // 获取应用实例
 const app = getApp()
@@ -43,11 +41,11 @@ Page({
     })
   },
   onLoad(options) {
-    // if (wx.getUserProfile) {
-    //   this.setData({
-    //     canIUseGetUserProfile: true
-    //   })
-    // }
+    if (wx.getUserProfile) {
+      this.setData({
+        canIUseGetUserProfile: true
+      })
+    }
 
     console.log({options});
 
@@ -180,21 +178,28 @@ Page({
     });
   },
 
-  loginInput: function (e) {
-    this.setData({
-      userInputLoginPwd: e.detail.value
-    })
-  },
+  // loginInput: function (e) {
+  //   this.setData({
+  //     userInputLoginPwd: e.detail.value
+  //   })
+  // },
 
-  login() {
-    if (this.data.userInputLoginPwd === 'nb') {
-      this.setData({
-        isEditMode: true,
-        loginHidden: true
-      });
-    } else {
-      toast('密码错', 'none', this.data.toastDuration, false);
-    }
+  // login() {
+  //   if (this.data.userInputLoginPwd === 'nb') {
+  //     this.setData({
+  //       isEditMode: true,
+  //       loginHidden: true
+  //     });
+  //   } else {
+  //     toast('密码错', 'none', this.data.toastDuration, false);
+  //   }
+  // },
+
+  loginSuccess() {
+    this.setData({
+      isEditMode: true,
+      loginHidden: true
+    });
   },
 
   editRound(e) {

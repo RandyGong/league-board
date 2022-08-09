@@ -145,10 +145,11 @@
 
 
 
-  <modal hidden="{{loginHidden}}" confirm-text="确定" cancel-text="好吧我不是主席" bindcancel="cancelLogin" bindconfirm="login" no-cancel="{{nocancel}}">
+  <!-- <modal hidden="{{loginHidden}}" confirm-text="确定" cancel-text="好吧我不是主席" bindcancel="cancelLogin" bindconfirm="login" no-cancel="{{nocancel}}">
     <view>只有主席才能改数据，请输入主席口令</view>
     <input type="text" style="margin-top:8px;border:1px solid green;height:40rpx" password bindinput="loginInput" />
-  </modal>
+  </modal> -->
+  <login-modal hidden="{{loginHidden}}" bindOnLoginSuccess="loginSuccess"></login-modal>
 
   <modal hidden="{{editRoundHidden}}" confirm-text="确定" cancel-text="取消" bindcancel="cancelLogin" bindconfirm="editRoundConfirm" no-cancel="{{nocancel}}">
     <view>日期</view>
