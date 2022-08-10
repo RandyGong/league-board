@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Game = exports.gameSchema = void 0;
 var mongoose = require("mongoose");
 exports.gameSchema = new mongoose.Schema({
-    name: String,
+    title: String,
     date: {
         dateString: String,
         timeString: String,
@@ -27,36 +27,58 @@ exports.gameSchema = new mongoose.Schema({
         randomMember: String,
     },
     note: String,
-    participants: [
-        {
-            confirmed: [
+    participants: {
+        confirmed: {
+            noTeam: [
                 {
-                    playerId: {
-                        type: mongoose.Schema.Types.ObjectId,
-                        ref: "playerData",
-                    },
+                    openId: String,
+                    nickName: String,
+                    avatarUrl: String,
+                    isDelegate: Boolean,
                 },
             ],
-            tbd: [
+            white: [
                 {
-                    playerId: {
-                        type: mongoose.Schema.Types.ObjectId,
-                        ref: "playerData",
-                    },
-                    reason: String,
+                    openId: String,
+                    nickName: String,
+                    avatarUrl: String,
+                    isDelegate: Boolean,
                 },
             ],
-            leave: [
+            blue: [
                 {
-                    playerId: {
-                        type: mongoose.Schema.Types.ObjectId,
-                        ref: "playerData",
-                    },
-                    reason: String,
+                    openId: String,
+                    nickName: String,
+                    avatarUrl: String,
+                    isDelegate: Boolean,
+                },
+            ],
+            red: [
+                {
+                    openId: String,
+                    nickName: String,
+                    avatarUrl: String,
+                    isDelegate: Boolean,
                 },
             ],
         },
-    ],
+        tbd: [
+            {
+                openId: String,
+                nickName: String,
+                avatarUrl: String,
+                reason: String,
+            },
+        ],
+        leave: [
+            {
+                openId: String,
+                nickName: String,
+                avatarUrl: String,
+                reason: String,
+            },
+        ],
+    },
     createdAt: Date,
     modifiedAt: { type: Date, required: false },
 });

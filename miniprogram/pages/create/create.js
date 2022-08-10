@@ -3,14 +3,20 @@ import {
   toast,
   getThursdayOfCurrentWeek,
   getMondayOfCurrentWeek,
-  getWeekday
+  getWeekday,
+  modal
 } from '../../utils/util';
+import {
+  request
+} from '../../utils/request';
 const chooseLocation = requirePlugin('chooseLocation');
 
 Page({
   data: {
+    isLoading: true,
     hasCurrentGame: false,
     showGameDataView: false,
+    isEditable: true,
     loginHidden: true,
     userInfo: {},
     hasUserInfo: false,
@@ -31,109 +37,23 @@ Page({
       types: ['5人制', '6人制', '7人制', '8人制', '9人制', '11人制'],
       index: 1
     },
-    game: {
-      title: '',
-      date: {
-        date: '',
-        dateWeekday: '',
-        time: '',
-      },
-      type: '对内联赛',
-      aSide: '6人制',
-      plannedNumberOfPeople: '18人踢三拨',
-      location: {
-        name: '龙湖西安曲江星悦荟',
-        address: '陕西省西安市雁塔区新开门北路888号',
-        latitude: 34.216235,
-        longitude: 108.992278,
-        city: '西安市',
-        district: '雁塔区',
-        province: '陕西省',
-      },
-      fee: {
-        fixedMember: '固定年费',
-        randomMember: '40'
-      },
-      note: '',
-      participants: {
-        confirmed: [{
-            id: '123',
-            name: 'Randy',
-            count: 12
-          },
-          {
-            id: '232',
-            name: '栓',
-            count: 54
-          },
-          {
-            id: '1232',
-            name: 'Andy',
-            count: 211
-          }
-        ],
-        tbd: [{
-            id: '123',
-            name: 'Randy',
-            count: 1,
-            reason: '待定'
-          },
-          {
-            id: '232',
-            name: '栓',
-            count: 4,
-            reason: '犹豫中'
-          },
-        ],
-        leave: [{
-            id: '123',
-            name: 'Randy',
-            count: 123,
-            reason: '伤病'
-          },
-          {
-            id: '232',
-            name: '栓',
-            count: 524,
-            reason: '出差'
-          },
-          {
-            id: '1232',
-            name: 'Andy',
-            count: 2111,
-            reason: '老婆不让'
-          }
-        ]
-      }
-    }
+    game: null
   },
 
-  onLoad() {
-    const dayOfToday = new Date().getDay();
-    if ([1, 2, 3].some(x => x === dayOfToday)) {
-      const thisThursday = getThursdayOfCurrentWeek();
-      this.setData({
-        ['game.date.date']: formatDate(thisThursday),
-        ['game.date.dateWeekday']: '周四',
-        ['game.title']: '周四走起'
-      })
-    } else {
-      const thisMonday = getMondayOfCurrentWeek();
-      console.log(`thisMonday`, thisMonday);
-      this.setData({
-        ['game.date.date']: formatDate(thisMonday),
-        ['game.date.dateWeekday']: '周一',
-        ['game.title']: '周一走起'
-      })
-    }
-
-    this.getGameTime();
+  async onLoad() {
+    let data = this.getGameDefaultData();
+    
+    this.setData({
+      game: data
+    })
 
     if (wx.getUserProfile) {
       this.setData({
         canIUseGetUserProfile: true
-      })
-    }  
+      });
+    }
+
+    await this.getCurrentGame();
   },
 
   onShow() {
@@ -170,14 +90,14 @@ Page({
   showCreateView() {
     this.setData({
       showGameDataView: true,
-      hasCurrentGame: true
+      isEditable: true
     });
   },
 
   bindDateChange: function (e) {
     const weekDay = getWeekday(e.detail.value);
     this.setData({
-      ['game.date.date']: e.detail.value,
+      ['game.date.dateString']: e.detail.value,
       ['game.date.dateWeekday']: `${weekDay}`
     })
     // const date = this.getRoundDate(e.detail.value);
@@ -188,7 +108,7 @@ Page({
 
   bindTimeChange: function (e) {
     this.setData({
-      ['game.date.time']: e.detail.value
+      ['game.date.timeString']: e.detail.value
     })
   },
 
@@ -204,16 +124,20 @@ Page({
     };
     data.timeIndex[e.detail.column] = e.detail.value;
     this.setData(data);
-    this.getGameTime();
+    this.getGameTime(true);
   },
-  getGameTime: function () {
+  getGameTime: function (setData) {
     let time = `${this.data.timeArray[0][this.data.timeIndex[0]]}:${this.data.timeArray[1][this.data.timeIndex[1]]}${this.data.timeArray[2][this.data.timeIndex[2]]}${this.data.timeArray[3][this.data.timeIndex[3]]}:${this.data.timeArray[4][this.data.timeIndex[4]]}`;
 
     time = time.replaceAll('时', '').replaceAll('分', '');
     console.log(time);
-    this.setData({
-      ['game.date.time']: time
-    });
+    if (setData) {
+      this.setData({
+        ['game.date.timeString']: time
+      });
+    } 
+    return time;
+
     // return timeArray[0][timeIndex[0]]}}:{{timeArray[1][timeIndex[1]]}}{{timeArray[2][timeIndex[2]]}}{{timeArray[3][timeIndex[3]]}}:{{timeArray[4][timeIndex[4]]
   },
 
@@ -260,7 +184,135 @@ Page({
     });
   },
 
-  publish() {
-    console.log(this.data.game);
+  async getCurrentGame(showLoading) {
+    let currentGame = await request('GET', `/game/current`, null, showLoading);
+    console.log(currentGame);
+
+    this.setData({
+      isLoading: false,
+    });
+
+    if (currentGame) {
+      const weekDay = getWeekday(currentGame.date.dateString);
+      currentGame.date.dateWeekday = weekDay;
+
+      this.setData({
+        game: currentGame,
+        hasCurrentGame: true,
+        showGameDataView: true,
+        isEditable: false
+      });
+    } else {
+      this.setData({
+        game: this.getGameDefaultData(),
+        hasCurrentGame: false,
+        showGameDataView: false,
+        isEditable: true
+      });
+    }
   },
+
+  processTime() {
+    const startTime = new Date(this.data.game.date.dateString + ' ' + this.data.game.date.timeString.split(' - ')[0]);
+    const endTime = new Date(this.data.game.date.dateString + ' ' + this.data.game.date.timeString.split(' - ')[1]);
+    this.setData({
+      ['game.date.startTime']: startTime,
+      ['game.date.endTime']: endTime,
+    });
+  },
+
+  async publish() {
+    this.processTime();
+    console.log(this.data.game);
+
+    const result = await request('POST', `/game`, this.data.game);
+    console.log(result);
+
+    toast("比赛已发布！", 'none', 3000, false);
+    
+    const isShowLoading = false;
+    await this.getCurrentGame(isShowLoading);
+  },
+
+  async updateGame() {
+    this.processTime();
+    console.log(this.data.game);
+
+    const result = await request('PUT', `/game/${this.data.game._id}`, this.data.game);
+    console.log(result);
+
+    toast("比赛数据已更新！", 'none', 3000, false);
+    const isShowLoading = false;
+    await this.getCurrentGame(isShowLoading);
+  },
+
+  async deleteGame() {
+    const res = await modal('xx', '确定要删除此比赛吗？');
+
+    if (res) {
+      const result = await request('DELETE', `/game/${this.data.game._id}`);
+      console.log(result);
+  
+      toast("比赛已删除！", 'none', 3000, false);
+      const isShowLoading = false;
+      await this.getCurrentGame(isShowLoading);
+    }
+  },
+
+  getGameDefaultData() {
+    let dateString, dateWeekday, title;
+    const timeString = this.getGameTime(false);
+
+    const dayOfToday = new Date().getDay();
+    if ([1, 2, 3].some(x => x === dayOfToday)) {
+      const thisThursday = getThursdayOfCurrentWeek();
+      dateString = formatDate(thisThursday);
+      dateWeekday = '周四';
+      title = '周四走起';
+    } else {
+      const thisMonday = getMondayOfCurrentWeek();
+      console.log(`thisMonday`, thisMonday);
+      dateString = formatDate(thisMonday);
+      dateWeekday = '周一';
+      title = '周一走起';
+    }
+
+    return {
+      title: title,
+      date: {
+        dateString,
+        timeString,
+        dateWeekday,
+        startTime: Date,
+        endTime: Date
+      },
+      type: '对内联赛',
+      aSide: '6人制',
+      plannedNumberOfPeople: '18人踢三拨',
+      location: {
+        name: '龙湖西安曲江星悦荟',
+        address: '陕西省西安市雁塔区新开门北路888号',
+        latitude: 34.216235,
+        longitude: 108.992278,
+        city: '西安市',
+        district: '雁塔区',
+        province: '陕西省',
+      },
+      fee: {
+        fixedMember: '固定年费',
+        randomMember: '40'
+      },
+      note: '',
+      participants: {
+        confirmed: {
+          noTeam: [],
+          white: [],
+          blue: [],
+          red: []
+        },
+        tbd: [],
+        leave: []
+      }
+    };
+  }
 })

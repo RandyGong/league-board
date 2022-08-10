@@ -2,14 +2,14 @@ const util = require('./util.js');
 
 const baseURL = "https://league-board-api.tk";
 
-function request(method, url, data) {
+function request(method, url, data, showLoading = true) {
   return new Promise(function (resolve, reject) {
     const header = {
       "content-type": "application/json",
     };
     const requestData = data;//method == "POST" ? JSON.stringify(data) : data;
 
-    util.loading();
+    showLoading && util.loading();
 
     wx.request({
       url: baseURL + url,
@@ -17,7 +17,6 @@ function request(method, url, data) {
       data: requestData,
       header: header,
       success(result) {
-        console.log(result);
 
         if (result.statusCode === 200) {
           resolve(result.data);
@@ -37,7 +36,7 @@ function request(method, url, data) {
       },
       complete: () => {
         // setTimeout(() => {
-          wx.hideLoading();
+          showLoading && wx.hideLoading();
         // }, 100);
       },
     });

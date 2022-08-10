@@ -13,12 +13,54 @@
 .gradient {
   background: linear-gradient(lightskyblue, pink);
 }
+
 .participant-gradient {
   /* background: linear-gradient(rgb(193, 231, 255), rgb(253, 201, 209)); */
 }
 
+.create-game-bg {
+  height: 100%;
+  width: 100%;
+  padding: 20rpx;
+  box-sizing: border-box;
+  overflow-y: hidden;
+  background-image: url('https://bpic.51yuansu.com/backgd/cover/00/14/67/5b83e59a43be4.jpg');
+  background-size: cover;
+}
+
+.create-game-tip {
+  position: relative;
+  top: 10%;
+  width: 100%;
+  color: white;
+}
+
+.create-game-btn {
+  background-color: #5e9ef1;
+  color: white;
+  width: calc(100% - 40rpx);
+  position: absolute;
+  bottom: 40rpx;
+}
+
 .title-wrap {
   padding: 20rpx 0;
+  position: relative;
+}
+
+.game-operation {
+  position: absolute;
+  right: 10rpx;
+  top: 36rpx;
+  width: 160rpx;
+  height: 80rpx;
+  display: flex;
+  gap: 40rpx;
+}
+
+.game-operation image {
+  width: 50rpx;
+  height: 50rpx;
 }
 
 .title {
@@ -37,9 +79,11 @@
 .confirmed-dot {
   background-color: lightskyblue;
 }
+
 .tbd-dot {
   background-color: rgb(255, 213, 136);
 }
+
 .leave-dot {
   background-color: pink;
 }
@@ -81,6 +125,7 @@
 .row1 {
   background-color: rgb(184, 228, 255);
 }
+
 .row2 {
   background-color: rgb(205, 236, 255);
 }
@@ -88,6 +133,7 @@
 .tbd-row1 {
   background-color: rgb(253, 225, 174);
 }
+
 .tbd-row2 {
   background-color: rgb(255, 238, 205);
 }
@@ -95,7 +141,7 @@
 .leave-row1 {
   background-color: rgb(255, 214, 221);
 }
+
 .leave-row2 {
   background-color: rgb(255, 228, 233);
 }
-

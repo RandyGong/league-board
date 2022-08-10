@@ -1,54 +1,47 @@
-<view wx:if="{{!hasCurrentGame}}" style="height: 100%;width: 100%;padding:20rpx;box-sizing: border-box;overflow-y: auto; background-image: url(https://bpic.51yuansu.com/backgd/cover/00/14/67/5b83e59a43be4.jpg);background-size: cover;">
+<view wx:if="{{!hasCurrentGame&&!showGameDataView}}" class="create-game-bg">
   <!-- https://iti-images.s3.amazonaws.com/events/41e0d5c9-83e5-d188-24ae-ecf3f0fab88f.webp -->
 
-  <view style="position:relative;top:10%; width: 100%;color: white;">
+  <view wx:if="{{!isLoading}}" class="create-game-tip">
     <view class="title-wrap" style="text-align: center;">
       <view class="title" style="font-size: 42rpx;">创建比赛</view>
-      <view class="tip m-t-1" style="font-size: 30rpx;">创建一场新比赛，开开心心约球来~</view>
+      <view class="tip m-t-1" style="font-size: 30rpx;">创建一场新比赛，大家一起约球来~</view>
     </view>
 
   </view>
-  <button bindtap="showLogin" style="background-color:#5e9ef1;color:white;width:calc(100% - 40rpx);position:absolute;bottom:40rpx">创建比赛</button>
-  
-  <login-modal hidden="{{loginHidden}}" bindOnLoginSuccess="showCreateView"></login-modal>
+  <button wx:if="{{!isLoading}}" bindtap="showLogin" class="create-game-btn" style="width: calc(100% - 40rpx)">创建比赛</button>
 
 </view>
+<login-modal hidden="{{loginHidden}}" bindOnLoginSuccess="showCreateView"></login-modal>
 
-<view class="container">
-  <view class="userinfo">
-    <block wx:if="{{!hasUserInfo}}">
-      <button wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile"> 获取头像昵称 </button>
-      <button wx:else open-type="getUserInfo" bindgetuserinfo="getUserInfo"> 获取头像昵称1 </button>
-    </block>
-    <block wx:else>
-      <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
-      <text class="userinfo-nickname">{{userInfo.nickName}}</text>
-    </block>
-  </view>
-</view>
-
-
-<view class="create gradient">
-  <block wx:if="{{showGameDataView}}">
-    <view class="title-wrap">
+<view wx:if="{{showGameDataView}}" class="create gradient">
+  <block>
+    <view wx:if="{{!hasCurrentGame}}" class="title-wrap">
       <view class="title">发布比赛</view>
       <view class="tip">发布一场新比赛，开开心心约球来~</view>
     </view>
+    <view wx:else class="title-wrap">
+      <view class="title">下一场比赛</view>
+      <view class="tip">还不快报名，还等啥呢，说你呢！</view>
 
+      <view class="game-operation">
+        <image bindtap="showLogin" src="../../images/edit.png"></image>
+        <image src="../../images/share.png"></image>
+      </view>
+    </view>
 
     <view class="panel m-t-1">
       <view class="panel-title">比赛信息</view>
 
       <view class="field m-t-1">
         <text>比赛标题</text>
-        <input adjust-position fixed type="text" class="value" value="{{game.title}}" data-field="title" bindinput="bindGameInput" />
+        <input disabled="{{!isEditable}}" adjust-position fixed type="text" class="value" value="{{game.title}}" data-field="title" bindinput="bindGameInput" />
       </view>
 
       <view class="field">
         <text>比赛日期</text>
-        <picker mode="date" value="{{game.date.date}}" start="2022-06-01" end="2223-12-31" bindchange="bindDateChange">
+        <picker disabled="{{!isEditable}}" mode="date" value="{{game.date.dateString}}" start="2022-06-01" end="2223-12-31" bindchange="bindDateChange">
           <view class="flex">
-            <input adjust-position fixed type="text" class="value" value="{{game.date.date}}" style="width: 95px;" disabled />
+            <input adjust-position fixed type="text" class="value" value="{{game.date.dateString}}" style="width: 95px;" disabled />
             <text class="value-tip">({{game.date.dateWeekday}})</text>
           </view>
         </picker>
@@ -56,9 +49,9 @@
 
       <view class="field">
         <text>比赛时间</text>
-        <picker mode="multiSelector" bindtap="getGameTime" bindchange="bindMultiPickerChange" bindcolumnchange="bindMultiPickerColumnChange" value="{{timeIndex}}" range="{{timeArray}}">
+        <picker disabled="{{!isEditable}}" mode="multiSelector" bindtap="getGameTime" bindchange="bindMultiPickerChange" bindcolumnchange="bindMultiPickerColumnChange" value="{{timeIndex}}" range="{{timeArray}}">
           <view class="picker">
-            <text class="value">{{game.date.time}}</text>
+            <text class="value">{{game.date.timeString}}</text>
           </view>
         </picker>
       </view>
@@ -89,7 +82,7 @@
 
       <view class="field">
         <text>计划人数</text>
-        <input adjust-position fixed type="digit" class="value" value="{{game.plannedNumberOfPeople}}" data-field="plannedNumberOfPeople" bindinput="bindGameInput" />
+        <input adjust-position fixed class="value" value="{{game.plannedNumberOfPeople}}" data-field="plannedNumberOfPeople" bindinput="bindGameInput" />
       </view>
     </view>
 
@@ -98,12 +91,12 @@
 
       <view class="field m-t-1">
         <text>固定铁腿</text>
-        <input adjust-position fixed type="digit" class="value" value="{{game.fee.fixedMember}}" />
+        <input adjust-position fixed class="value" value="{{game.fee.fixedMember}}" />
       </view>
 
       <view class="field">
         <text>随机散客</text>
-        <input adjust-position fixed type="digit" class="value" value="{{game.fee.randomMember}}" />
+        <input adjust-position fixed class="value" value="{{game.fee.randomMember}}" />
       </view>
     </view>
 
@@ -115,11 +108,20 @@
       </view>
     </view>
 
-    <view class="m-t-1">
-      <button bindtap="publish" style="background-color:#5e9ef1;color:white;width:100%;">发布比赛</button>
+    <view wx:if="{{!hasCurrentGame}}" class="m-t-1">
+      <button bindtap="publish" class="btn-blue" style="width: 100%">发布比赛</button>
+    </view>
+    <view wx:else class="m-t-1">
+      <view wx:if="{{isEditable}}" class="flex" style="gap:20rpx">
+        <button class="btn-blue" bindtap="updateGame">提交更新</button>
+        <button class="btn-red" bindtap="deleteGame">删除</button>
+      </view>
+      <view wx:else="">
+        <button wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile">报名</button>
+      </view>
     </view>
 
-    <view class="panel m-t-1 participant-gradient">
+    <view wx:if="{{hasCurrentGame}}" class="panel m-t-1 participant-gradient">
       <view class="panel-title">报名情况</view>
 
       <view>

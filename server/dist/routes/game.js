@@ -35,6 +35,31 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __read = (this && this.__read) || function (o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    }
+    catch (error) { e = { error: error }; }
+    finally {
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        }
+        finally { if (e) throw e.error; }
+    }
+    return ar;
+};
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var game_1 = require("../models/game");
 var express = require("express");
@@ -52,16 +77,29 @@ router.get("/", function (req, res, next) { return __awaiter(void 0, void 0, voi
     });
 }); });
 router.get("/current", function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
-    var latestGame;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var latestGame, key;
+    var _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
             case 0: return [4 /*yield*/, game_1.Game.findOne({}).sort({ "date.startTime": -1 })];
             case 1:
-                latestGame = _a.sent();
+                latestGame = _b.sent();
                 if (!latestGame) {
                     return [2 /*return*/, res.send(null)];
                 }
                 if (latestGame.date.endTime.getTime() > new Date().getTime()) {
+                    // 考虑到由于比赛类型可能做过更改，修改前如果是对内联赛，那么按对报名数据会丢失
+                    // 这里把按对报名的人员都放到noTeam中
+                    if (!!latestGame.modifiedAt && latestGame.type !== "对内联赛") {
+                        for (key in latestGame.participants.confirmed) {
+                            if (Object.prototype.hasOwnProperty.call(latestGame.participants.confirmed, key)) {
+                                if (key !== "noTeam") {
+                                    (_a = latestGame.participants.confirmed.noTeam).push.apply(_a, __spreadArray([], __read(latestGame.participants.confirmed[key]), false));
+                                    latestGame.participants.confirmed[key] = [];
+                                }
+                            }
+                        }
+                    }
                     return [2 /*return*/, res.json(latestGame)];
                 }
                 res.send(null);
@@ -76,7 +114,6 @@ router.post("/", function (req, res, next) { return __awaiter(void 0, void 0, vo
             case 0:
                 game = req.body;
                 game.createdAt = new Date();
-                console.log(game);
                 return [4 /*yield*/, game_1.Game.insertMany([game])];
             case 1:
                 _a.sent();
@@ -86,24 +123,97 @@ router.post("/", function (req, res, next) { return __awaiter(void 0, void 0, vo
     });
 }); });
 router.put("/:id", function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
-    var game, id;
+    var game;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 game = req.body;
-                id = req.params.id;
                 game.modifiedAt = new Date();
-                console.log("game", game);
-                return [4 /*yield*/, game_1.Game.findByIdAndUpdate(id, game)];
+                return [4 /*yield*/, game_1.Game.findByIdAndUpdate(req.params.id, game)];
             case 1:
                 _a.sent();
-                //   let targetGame = await Game.findById(id);
-                //   if (targetGame) {
-                //     targetGame = game;
-                //     targetGame.modifiedAt = new Date();
-                //     console.log("targetGame", targetGame);
-                //     await targetGame.save();
-                //   }
+                res.end();
+                return [2 /*return*/];
+        }
+    });
+}); });
+router.delete("/:id", function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, game_1.Game.findByIdAndRemove(req.params.id)];
+            case 1:
+                _a.sent();
+                res.end();
+                return [2 /*return*/];
+        }
+    });
+}); });
+router.put("/:id/sign-off", function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
+    var participantObjectId, game, key;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                participantObjectId = req.body._id;
+                return [4 /*yield*/, game_1.Game.findById(req.params.id)];
+            case 1:
+                game = _a.sent();
+                if (!game) {
+                    return [2 /*return*/, res.send("Specified game not found!")];
+                }
+                for (key in game.participants.confirmed) {
+                    if (Object.prototype.hasOwnProperty.call(game.participants.confirmed, key)) {
+                        game.participants.confirmed[key] = game.participants.confirmed[key].filter(function (x) { return x["_id"].toString() !== participantObjectId; });
+                    }
+                }
+                game.participants.tbd = game.participants.tbd.filter(function (x) { return x["_id"].toString() !== participantObjectId; });
+                game.participants.leave = game.participants.leave.filter(function (x) { return x["_id"].toString() !== participantObjectId; });
+                return [4 /*yield*/, game.save()];
+            case 2:
+                _a.sent();
+                res.end();
+                return [2 /*return*/];
+        }
+    });
+}); });
+router.put("/:id/sign-up", function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
+    var command, game, dataToSave;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                command = req.body;
+                return [4 /*yield*/, game_1.Game.findById(req.params.id)];
+            case 1:
+                game = _a.sent();
+                if (!game) {
+                    return [2 /*return*/, res.send("Specified game not found!")];
+                }
+                dataToSave = {
+                    openId: command.openId,
+                    nickName: command.nickName,
+                    avatarUrl: command.avatarUrl,
+                    isDelegate: command.isDelegate,
+                    reason: command.reason,
+                };
+                if (command.status === "confirmed") {
+                    delete dataToSave.reason;
+                    if (!command.isDelegate) {
+                        if (!game.participants.confirmed[command.team].some(function (x) { return x.openId === command.openId || x.nickName === command.nickName; })) {
+                            game.participants.confirmed[command.team].push(dataToSave);
+                        }
+                    }
+                    else {
+                        game.participants.confirmed[command.team].push(dataToSave);
+                    }
+                }
+                else {
+                    if (!game.participants[command.status].some(function (x) { return x.openId === command.openId || x.nickName === command.nickName; })) {
+                        delete dataToSave.isDelegate;
+                        game.participants[command.status].push(dataToSave);
+                    }
+                }
+                return [4 /*yield*/, game.save()];
+            case 2:
+                _a.sent();
                 res.end();
                 return [2 /*return*/];
         }

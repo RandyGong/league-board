@@ -1,15 +1,14 @@
 import * as mongoose from "mongoose";
-import { IPlayerData } from "./player.data";
 
 export interface IGame extends mongoose.Document {
-  name: string;
+  title: string;
   date: {
     dateString: string;
     timeString: string;
     startTime: Date;
     endTime: Date;
   };
-  type: string;
+  type: "对内联赛" | "友谊赛" | "对抗赛";
   aSide: string;
   plannedNumberOfPeople: string;
   location: {
@@ -28,32 +27,50 @@ export interface IGame extends mongoose.Document {
   note: string;
   participants: {
     confirmed: {
-      playerId: {
-        type: mongoose.Schema.Types.ObjectId;
-        ref: "playerData";
-      };
-    }[];
+      noTeam: {
+        openId: string;
+        nickName: string;
+        avatarUrl: string;
+        isDelegate: boolean;
+      }[];
+      white: {
+        openId: string;
+        nickName: string;
+        avatarUrl: string;
+        isDelegate: boolean;
+      }[];
+      blue: {
+        openId: string;
+        nickName: string;
+        avatarUrl: string;
+        isDelegate: boolean;
+      }[];
+      red: {
+        openId: string;
+        nickName: string;
+        avatarUrl: string;
+        isDelegate: boolean;
+      }[];
+    };
     tbd: {
-      playerId: {
-        type: mongoose.Schema.Types.ObjectId;
-        ref: "playerData";
-      };
+      openId: string;
+      nickName: string;
+      avatarUrl: string;
       reason: string;
     }[];
     leave: {
-      playerId: {
-        type: mongoose.Schema.Types.ObjectId;
-        ref: "playerData";
-      };
+      openId: string;
+      nickName: string;
+      avatarUrl: string;
       reason: string;
     }[];
-  }[];
+  };
   createdAt?: Date;
   modifiedAt?: Date;
 }
 
 export const gameSchema = new mongoose.Schema({
-  name: String,
+  title: String,
   date: {
     dateString: String,
     timeString: String,
@@ -77,36 +94,58 @@ export const gameSchema = new mongoose.Schema({
     randomMember: String,
   },
   note: String,
-  participants: [
-    {
-      confirmed: [
+  participants: {
+    confirmed: {
+      noTeam: [
         {
-          playerId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "playerData",
-          },
+          openId: String,
+          nickName: String,
+          avatarUrl: String,
+          isDelegate: Boolean,
         },
       ],
-      tbd: [
+      white: [
         {
-          playerId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "playerData",
-          },
-          reason: String,
+          openId: String,
+          nickName: String,
+          avatarUrl: String,
+          isDelegate: Boolean,
         },
       ],
-      leave: [
+      blue: [
         {
-          playerId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "playerData",
-          },
-          reason: String,
+          openId: String,
+          nickName: String,
+          avatarUrl: String,
+          isDelegate: Boolean,
+        },
+      ],
+      red: [
+        {
+          openId: String,
+          nickName: String,
+          avatarUrl: String,
+          isDelegate: Boolean,
         },
       ],
     },
-  ],
+    tbd: [
+      {
+        openId: String,
+        nickName: String,
+        avatarUrl: String,
+        reason: String,
+      },
+    ],
+    leave: [
+      {
+        openId: String,
+        nickName: String,
+        avatarUrl: String,
+        reason: String,
+      },
+    ],
+  },
   createdAt: Date,
   modifiedAt: { type: Date, required: false },
 });
