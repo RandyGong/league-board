@@ -18,6 +18,8 @@ Page({
     showGameDataView: false,
     isEditable: true,
     loginHidden: true,
+    signUpHidden: true,
+
     userInfo: {},
     hasUserInfo: false,
     canIUseGetUserProfile: false,
@@ -37,12 +39,13 @@ Page({
       types: ['5人制', '6人制', '7人制', '8人制', '9人制', '11人制'],
       index: 1
     },
-    game: null
+    game: null,
+    totalConfirmed: 0
   },
 
   async onLoad() {
     let data = this.getGameDefaultData();
-    
+
     this.setData({
       game: data
     })
@@ -75,8 +78,9 @@ Page({
         console.log(`res user profile`, res);
         this.setData({
           userInfo: res.userInfo,
-          hasUserInfo: true
-        })
+          hasUserInfo: true,
+          signUpHidden: false
+        });
       }
     })
   },
@@ -124,7 +128,8 @@ Page({
     };
     data.timeIndex[e.detail.column] = e.detail.value;
     this.setData(data);
-    this.getGameTime(true);
+    const isSetData = true;
+    this.getGameTime(isSetData);
   },
   getGameTime: function (setData) {
     let time = `${this.data.timeArray[0][this.data.timeIndex[0]]}:${this.data.timeArray[1][this.data.timeIndex[1]]}${this.data.timeArray[2][this.data.timeIndex[2]]}${this.data.timeArray[3][this.data.timeIndex[3]]}:${this.data.timeArray[4][this.data.timeIndex[4]]}`;
@@ -135,7 +140,7 @@ Page({
       this.setData({
         ['game.date.timeString']: time
       });
-    } 
+    }
     return time;
 
     // return timeArray[0][timeIndex[0]]}}:{{timeArray[1][timeIndex[1]]}}{{timeArray[2][timeIndex[2]]}}{{timeArray[3][timeIndex[3]]}}:{{timeArray[4][timeIndex[4]]
@@ -184,7 +189,13 @@ Page({
     });
   },
 
-  async getCurrentGame(showLoading) {
+  getTotalConfirmed(currentGame) {
+    const total = currentGame.participants.confirmed.noTeam.length + currentGame.participants.confirmed.white.length + currentGame.participants.confirmed.blue.length + currentGame.participants.confirmed.red.length;
+    console.log('totalConfirmed', total);
+    return total;
+  },
+
+  async getCurrentGame(showLoading = false) {
     let currentGame = await request('GET', `/game/current`, null, showLoading);
     console.log(currentGame);
 
@@ -195,19 +206,22 @@ Page({
     if (currentGame) {
       const weekDay = getWeekday(currentGame.date.dateString);
       currentGame.date.dateWeekday = weekDay;
+      const totalConfirmed = this.getTotalConfirmed(currentGame);
 
       this.setData({
         game: currentGame,
         hasCurrentGame: true,
         showGameDataView: true,
-        isEditable: false
+        isEditable: false,
+        totalConfirmed
       });
     } else {
       this.setData({
         game: this.getGameDefaultData(),
         hasCurrentGame: false,
         showGameDataView: false,
-        isEditable: true
+        isEditable: true,
+        totalConfirmed: 0
       });
     }
   },
@@ -229,7 +243,7 @@ Page({
     console.log(result);
 
     toast("比赛已发布！", 'none', 3000, false);
-    
+
     const isShowLoading = false;
     await this.getCurrentGame(isShowLoading);
   },
@@ -252,16 +266,25 @@ Page({
     if (res) {
       const result = await request('DELETE', `/game/${this.data.game._id}`);
       console.log(result);
-  
+
       toast("比赛已删除！", 'none', 3000, false);
       const isShowLoading = false;
       await this.getCurrentGame(isShowLoading);
     }
   },
 
+  async signUp() {
+    const openId = wx.setStorageSync('openId');
+
+    if (this.data.game.type === '对内联赛') {
+
+    }
+  },
+
   getGameDefaultData() {
     let dateString, dateWeekday, title;
-    const timeString = this.getGameTime(false);
+    const isSetData = false;
+    const timeString = this.getGameTime(isSetData);
 
     const dayOfToday = new Date().getDay();
     if ([1, 2, 3].some(x => x === dayOfToday)) {

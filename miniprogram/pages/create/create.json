@@ -1,6 +1,7 @@
 {
   "navigationBarTitleText": "创建比赛",
   "usingComponents": {
-    "login-modal": "../../components/login-modal/login-modal"
+    "login-modal": "../../components/login-modal/login-modal",
+    "sign-up-modal": "../../components/sign-up-modal/sign-up"
   }
 }

@@ -1,0 +1,34 @@
+
+.team-radio {
+  flex: 1;
+  border-radius: 4px;
+}
+
+.team-radio image {
+  width: 100%;
+  height: 80px;
+  object-fit: contain;
+}
+
+.team-name {
+  text-align: center;
+}
+
+.flex {
+  display: flex;
+}
+
+.space-between {
+  justify-content: space-between;
+}
+
+.sign-up-title {
+  font-size: large;
+  font-weight: bold;
+  margin-bottom: 40rpx;
+}
+
+.selected {
+  outline: 2px solid green;
+  /* border: 2px solid green; */
+}

@@ -58,7 +58,7 @@
 
       <view class="field">
         <text>比赛性质</text>
-        <picker value="{{gameType.index}}" range="{{gameType.types}}" bindchange="bindGameTypeChange">
+        <picker disabled="{{!isEditable}}" value="{{gameType.index}}" range="{{gameType.types}}" bindchange="bindGameTypeChange">
           <view class="picker">
             <text class="value">{{gameType.types[gameType.index]}}</text>
           </view>
@@ -73,7 +73,7 @@
 
       <view class="field">
         <text>球场人制</text>
-        <picker value="{{aSideType.index}}" range="{{aSideType.types}}" bindchange="bindASideTypeChange">
+        <picker disabled="{{!isEditable}}" value="{{aSideType.index}}" range="{{aSideType.types}}" bindchange="bindASideTypeChange">
           <view class="picker">
             <text class="value">{{aSideType.types[aSideType.index]}}</text>
           </view>
@@ -82,7 +82,7 @@
 
       <view class="field">
         <text>计划人数</text>
-        <input adjust-position fixed class="value" value="{{game.plannedNumberOfPeople}}" data-field="plannedNumberOfPeople" bindinput="bindGameInput" />
+        <input disabled="{{!isEditable}}" adjust-position fixed class="value" value="{{game.plannedNumberOfPeople}}" data-field="plannedNumberOfPeople" bindinput="bindGameInput" />
       </view>
     </view>
 
@@ -91,12 +91,12 @@
 
       <view class="field m-t-1">
         <text>固定铁腿</text>
-        <input adjust-position fixed class="value" value="{{game.fee.fixedMember}}" />
+        <input disabled="{{!isEditable}}" adjust-position fixed class="value" value="{{game.fee.fixedMember}}" />
       </view>
 
       <view class="field">
         <text>随机散客</text>
-        <input adjust-position fixed class="value" value="{{game.fee.randomMember}}" />
+        <input disabled="{{!isEditable}}" adjust-position fixed class="value" value="{{game.fee.randomMember}}" />
       </view>
     </view>
 
@@ -104,7 +104,7 @@
       <view class="panel-title">注意事项</view>
 
       <view class="field m-t-1">
-        <textarea always-embed adjust-position="{{false}}" class="input" maxlength="300" value="{{game.note}}" data-field="note" bindinput="bindGameInput" style="height: 48px;" />
+        <textarea disabled="{{!isEditable}}" always-embed adjust-position="{{false}}" class="input" maxlength="300" value="{{game.note}}" data-field="note" bindinput="bindGameInput" style="height: 48px;" />
       </view>
     </view>
 
@@ -121,12 +121,15 @@
       </view>
     </view>
 
+    <sign-up-modal hidden="{{signUpHidden}}" userInfo="{{userInfo}}" gameType="{{game.type}}" 
+    isDelegate="{{game.isDelegate}}" gameId="{{game._id}}" bindOnSignUpSuccess="getCurrentGame"></sign-up-modal>
+
     <view wx:if="{{hasCurrentGame}}" class="panel m-t-1 participant-gradient">
       <view class="panel-title">报名情况</view>
 
       <view>
         <view class="panel-title flex m-t-2">
-          <view class="title-dot confirmed-dot"></view>已报名 (共{{game.participants.confirmed.length}}人)
+          <view class="title-dot confirmed-dot"></view>已报名 (共{{totalConfirmed}}人)
         </view>
 
         <view class="m-t-2">

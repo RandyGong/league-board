@@ -1,0 +1,22 @@
+<modal hidden="{{hidden}}" confirm-text="确定" cancel-text="取消" bindconfirm="signUp" bindcancel="cancel">
+  <view class="sign-up-title">请选择球队<text wx:if="{{isDelegate}}">(代报名)</text></view>
+  
+  <view class="flex space-between" style="gap:4rpx">
+    <view class="team-radio {{team==='white'?'selected':''}}" bindtap="selectTeam" data-team="white">
+      <image src="../../images/white.png"></image>
+      <view class="team-name">白队</view>
+    </view>
+    <view class="team-radio {{team==='blue'?'selected':''}}" bindtap="selectTeam" data-team="blue">
+      <image src="../../images/blue.png"></image>
+      <view class="team-name" style="color: royalblue;">蓝队</view>
+    </view>
+    <view class="team-radio {{team==='red'?'selected':''}}" bindtap="selectTeam" data-team="red">
+      <image src="../../images/red.png"></image>
+      <view class="team-name" style="color: rgb(245, 43, 43);">红队</view>
+    </view>
+    <view class="team-radio {{team==='unknown'?'selected':''}}" bindtap="selectTeam" data-team="unknown">
+      <image src="../../images/unknown.png"></image>
+      <view class="team-name">暂不选择</view>
+    </view>
+  </view>
+</modal>

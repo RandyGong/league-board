@@ -25,7 +25,7 @@
       },
       {
         "pagePath": "pages/create/create",
-        "text": "创建比赛",
+        "text": "当前比赛",
         "iconPath": "images/ball.png",
         "selectedIconPath": "images/ball.png"
       },
