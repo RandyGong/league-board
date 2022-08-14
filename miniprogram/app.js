@@ -8,6 +8,7 @@
 import {
   request
 } from './utils/request';
+import {GlobalEventEmitter} from './utils/eventEmitter';
 
 App({
   onLaunch() {
@@ -27,8 +28,9 @@ App({
         const showLoading = false;
         let openId = await request('GET', '/common/wx-user-openId?code=' + res.code, null, showLoading);
         console.log('openId', openId);
-        if (openId && openId.openid) {
-          wx.setStorageSync('openId', openId.openid);
+        if (openId && openId.openId) {
+          wx.setStorageSync('openId', openId.openId);
+          GlobalEventEmitter.emit('openIdGot', openId.openId);
         }
       }
     })

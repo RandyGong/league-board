@@ -1,0 +1,6 @@
+{
+  "component": true, 
+  "usingComponents": {
+    "sign-up-modal": "../sign-up-modal/sign-up"
+  }
+ }

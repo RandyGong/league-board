@@ -1,0 +1,73 @@
+.list-bg {
+  background: linear-gradient(pink, lightskyblue);
+  height: 100%;
+  padding: 20rpx;
+  /* overflow: hidden; */
+
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.game-data {
+  color: gray;
+}
+
+.player-data {
+  display: inline-block;
+  font-size: 26rpx;
+  display: inline;
+  margin-right: 12px;
+}
+
+.player-data image {
+  width: 46rpx;
+  height: 46rpx;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 6rpx;
+}
+
+.team-name {
+  margin-top: 20rpx;
+}
+
+.team-name image {
+  width: 46rpx;
+  height: 46rpx;
+  vertical-align: middle;
+}
+
+.team-name text {
+  position: relative;
+  top: 4rpx;
+}
+
+.delegate {
+  padding: 3rpx 7rpx;
+  border-radius: 50%;
+  font-size: 20rpx;
+  background-color: rgb(124, 205, 255);
+  color: white;
+  position: relative;
+  left: 6rpx;
+  top: -2rpx;
+  /* width: 20rpx; */
+}
+
+.vertical-reverse {
+  transform: rotateX(180deg);
+}
+
+.show-more {
+  justify-content: center;
+  margin-top: 10rpx;
+}
+
+.show-more image {
+  width: 100rpx;
+  height: 50rpx;
+  object-fit: cover;
+}

@@ -32,24 +32,32 @@ export interface IGame extends mongoose.Document {
         nickName: string;
         avatarUrl: string;
         isDelegate: boolean;
+        participationTimes?: number;
+        appliedAt: Date;
       }[];
       white: {
         openId: string;
         nickName: string;
         avatarUrl: string;
         isDelegate: boolean;
+        participationTimes?: number;
+        appliedAt: Date;
       }[];
       blue: {
         openId: string;
         nickName: string;
         avatarUrl: string;
         isDelegate: boolean;
+        participationTimes?: number;
+        appliedAt: Date;
       }[];
       red: {
         openId: string;
         nickName: string;
         avatarUrl: string;
         isDelegate: boolean;
+        participationTimes?: number;
+        appliedAt: Date;
       }[];
     };
     tbd: {
@@ -57,12 +65,14 @@ export interface IGame extends mongoose.Document {
       nickName: string;
       avatarUrl: string;
       reason: string;
+      appliedAt: Date;
     }[];
     leave: {
       openId: string;
       nickName: string;
       avatarUrl: string;
       reason: string;
+      appliedAt: Date;
     }[];
   };
   createdAt?: Date;
@@ -102,6 +112,8 @@ export const gameSchema = new mongoose.Schema({
           nickName: String,
           avatarUrl: String,
           isDelegate: Boolean,
+          participationTimes: Number,
+          appliedAt: Date,
         },
       ],
       white: [
@@ -110,6 +122,8 @@ export const gameSchema = new mongoose.Schema({
           nickName: String,
           avatarUrl: String,
           isDelegate: Boolean,
+          participationTimes: Number,
+          appliedAt: Date,
         },
       ],
       blue: [
@@ -118,6 +132,8 @@ export const gameSchema = new mongoose.Schema({
           nickName: String,
           avatarUrl: String,
           isDelegate: Boolean,
+          participationTimes: Number,
+          appliedAt: Date,
         },
       ],
       red: [
@@ -126,6 +142,8 @@ export const gameSchema = new mongoose.Schema({
           nickName: String,
           avatarUrl: String,
           isDelegate: Boolean,
+          participationTimes: Number,
+          appliedAt: Date,
         },
       ],
     },
@@ -135,6 +153,7 @@ export const gameSchema = new mongoose.Schema({
         nickName: String,
         avatarUrl: String,
         reason: String,
+        appliedAt: Date,
       },
     ],
     leave: [
@@ -143,6 +162,7 @@ export const gameSchema = new mongoose.Schema({
         nickName: String,
         avatarUrl: String,
         reason: String,
+        appliedAt: Date,
       },
     ],
   },

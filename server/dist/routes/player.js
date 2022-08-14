@@ -36,15 +36,28 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var errorHandler_1 = require("../errorHandler");
 var player_data_1 = require("../models/player.data");
 var express = require("express");
-var router = express.Router();
+var router = (0, errorHandler_1.toAsyncRouter)(express.Router());
 /* GET players listing. */
 router.get("/", function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
     var playerData;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0: return [4 /*yield*/, player_data_1.PlayerData.find({})];
+            case 1:
+                playerData = _a.sent();
+                res.send(playerData);
+                return [2 /*return*/];
+        }
+    });
+}); });
+router.get("/:openId", function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
+    var playerData;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, player_data_1.PlayerData.findOne({ openId: req.params.openId })];
             case 1:
                 playerData = _a.sent();
                 res.send(playerData);

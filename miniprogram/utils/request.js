@@ -9,7 +9,7 @@ function request(method, url, data, showLoading = true) {
     };
     const requestData = data;//method == "POST" ? JSON.stringify(data) : data;
 
-    showLoading && util.loading();
+    showLoading && util.loading('请稍等');
 
     wx.request({
       url: baseURL + url,
@@ -21,7 +21,8 @@ function request(method, url, data, showLoading = true) {
         if (result.statusCode === 200) {
           resolve(result.data);
         } else {
-          util.toast('请求异常', 'warn', 3000, false);
+          const msg = result.data.msg || '请求异常';
+          util.toast(msg, 'none', 3000, false, true);
         }
         // else if (result.data.code == 201)
         // {
@@ -31,7 +32,7 @@ function request(method, url, data, showLoading = true) {
       },
       fail(result) { //请求失败
         wx.hideLoading();
-        util.toast('请求异常了', 'warn', 3000, false);
+        util.toast('请求异常了，请下拉重试', 'none', 3000, false, true);
         resolve(result);
       },
       complete: () => {

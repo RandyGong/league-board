@@ -80,3 +80,59 @@ page {
   color: white;
   width: 100%;
 }
+
+.btn-white {
+  background-color: rgb(255, 255, 255);
+  color: rgb(117, 117, 117);
+  width: 100%;
+}
+
+.link-btn {
+  color: rgb(64, 132, 233);
+  font-size: 30rpx;
+  font-weight: normal;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.title-wrap {
+  padding: 20rpx 0;
+  position: relative;
+}
+
+.narrow-wrap {
+  padding: 6rpx 0;
+  position: relative;
+}
+
+.title {
+  font-weight: bold;
+}
+
+.tip {
+  font-size: x-small;
+}
+
+.title-dot {
+  width: 10rpx;
+  height: 40rpx;
+  margin-right: 10rpx;
+  border-radius: 10rpx;
+  position: relative;
+  top: 4rpx;
+  display: inline-block;
+}
+
+.confirmed-dot {
+  background-color: lightskyblue;
+}
+
+.tbd-dot {
+  background-color: rgb(255, 213, 136);
+}
+
+.leave-dot {
+  background-color: pink;
+}

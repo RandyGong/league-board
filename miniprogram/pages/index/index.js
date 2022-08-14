@@ -61,7 +61,6 @@ Page({
   },
 
   onShareTimeline: function (res) {
-    var that = this;
     return {
       title: this.formatMergedInfo(),
       imageUrl: `https://iti-images.s3.amazonaws.com/events/897195ed-1495-bc59-11e2-28704a1e2a92.webp`,

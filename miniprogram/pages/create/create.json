@@ -1,7 +1,10 @@
 {
-  "navigationBarTitleText": "创建比赛",
+  "navigationBarTitleText": "当前比赛",
   "usingComponents": {
-    "login-modal": "../../components/login-modal/login-modal",
-    "sign-up-modal": "../../components/sign-up-modal/sign-up"
-  }
+    "login-modal": "/components/login-modal/login-modal",
+    "sign-up-modal": "/components/sign-up-modal/sign-up",
+    "team-participation": "/components/team-participation/team-participation"
+  },
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark"
 }

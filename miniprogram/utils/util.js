@@ -24,10 +24,10 @@ const makeTwoDigits = dateValue => {
   return dateValue;
 }
 
-const getMondayOfCurrentWeek = () => {
+const getMondayOfNextWeek = () => {
   const today = new Date();
   const first = today.getDate() - today.getDay() + 1;
-  const fifth = first + 0;
+  const fifth = first + 7;
   const friday = new Date(today.setDate(fifth));
   return friday;
 }
@@ -55,13 +55,24 @@ function loading(title = '加载中...') {
     title
   });
 }
-function toast(title, icon, duration, isShowMask) {
-  wx.showToast({
-    title,
-    icon,
-    duration,
-    mask: isShowMask
-  })
+function toast(title, icon = 'none', duration = 3000, isShowMask = false, isAsync = false) {
+  if (isAsync) {
+    setTimeout(() => {
+      wx.showToast({
+        title,
+        icon,
+        duration,
+        mask: isShowMask
+      });
+    }, 200);
+  } else {
+    wx.showToast({
+      title,
+      icon,
+      duration,
+      mask: isShowMask
+    });
+  }
 }
 
 function modal(title, content) {
@@ -89,7 +100,7 @@ module.exports = {
   loading,
   toast,
   modal,
-  getMondayOfCurrentWeek,
+  getMondayOfNextWeek,
   getThursdayOfCurrentWeek,
   getWeekday
 }

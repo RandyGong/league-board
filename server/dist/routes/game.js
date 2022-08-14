@@ -61,17 +61,37 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     return to.concat(ar || Array.prototype.slice.call(from));
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var errorHandler_1 = require("../errorHandler");
 var game_1 = require("../models/game");
+var game_service_1 = require("../services/game.service");
+var player_service_1 = require("../services/player.service");
 var express = require("express");
-var router = express.Router();
+var router = (0, errorHandler_1.toAsyncRouter)(express.Router());
 router.get("/", function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
     var allGames;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, game_1.Game.find({})];
+            case 0: return [4 /*yield*/, game_1.Game.find({}, "title date type aSide fee.randomMember location.name").sort({ "date.startTime": -1 })];
             case 1:
                 allGames = _a.sent();
+                if (allGames.length) {
+                    if (allGames[0].date.endTime.getTime() > new Date().getTime()) {
+                        allGames = allGames.slice(1);
+                    }
+                }
                 res.send(allGames);
+                return [2 /*return*/];
+        }
+    });
+}); });
+router.get("/:_id", function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
+    var game;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, game_1.Game.findById(req.params._id)];
+            case 1:
+                game = _a.sent();
+                res.send(game);
                 return [2 /*return*/];
         }
     });
@@ -88,7 +108,7 @@ router.get("/current", function (req, res, next) { return __awaiter(void 0, void
                     return [2 /*return*/, res.send(null)];
                 }
                 if (latestGame.date.endTime.getTime() > new Date().getTime()) {
-                    // 考虑到由于比赛类型可能做过更改，修改前如果是对内联赛，那么按对报名数据会丢失
+                    // 考虑到由于比赛类型可能做过更改，修改前如果是对内联赛，那么按队伍报名的数据会丢失
                     // 这里把按对报名的人员都放到noTeam中
                     if (!!latestGame.modifiedAt && latestGame.type !== "对内联赛") {
                         for (key in latestGame.participants.confirmed) {
@@ -149,7 +169,7 @@ router.delete("/:id", function (req, res, next) { return __awaiter(void 0, void 
     });
 }); });
 router.put("/:id/sign-off", function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
-    var participantObjectId, game, key;
+    var participantObjectId, game;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -158,17 +178,15 @@ router.put("/:id/sign-off", function (req, res, next) { return __awaiter(void 0,
             case 1:
                 game = _a.sent();
                 if (!game) {
-                    return [2 /*return*/, res.send("Specified game not found!")];
+                    throw new Error("未找到所指的的比赛!");
                 }
-                for (key in game.participants.confirmed) {
-                    if (Object.prototype.hasOwnProperty.call(game.participants.confirmed, key)) {
-                        game.participants.confirmed[key] = game.participants.confirmed[key].filter(function (x) { return x["_id"].toString() !== participantObjectId; });
-                    }
-                }
+                return [4 /*yield*/, game_service_1.GameService.moveOutFromConfirmed(game, participantObjectId, true)];
+            case 2:
+                _a.sent();
                 game.participants.tbd = game.participants.tbd.filter(function (x) { return x["_id"].toString() !== participantObjectId; });
                 game.participants.leave = game.participants.leave.filter(function (x) { return x["_id"].toString() !== participantObjectId; });
                 return [4 /*yield*/, game.save()];
-            case 2:
+            case 3:
                 _a.sent();
                 res.end();
                 return [2 /*return*/];
@@ -176,16 +194,16 @@ router.put("/:id/sign-off", function (req, res, next) { return __awaiter(void 0,
     });
 }); });
 router.put("/:id/sign-up", function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
-    var command, game, dataToSave;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var command, game, dataToSave, _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
             case 0:
                 command = req.body;
                 return [4 /*yield*/, game_1.Game.findById(req.params.id)];
             case 1:
-                game = _a.sent();
+                game = _b.sent();
                 if (!game) {
-                    return [2 /*return*/, res.send("Specified game not found!")];
+                    throw new Error("当前比赛未找到!");
                 }
                 dataToSave = {
                     openId: command.openId,
@@ -193,27 +211,74 @@ router.put("/:id/sign-up", function (req, res, next) { return __awaiter(void 0, 
                     avatarUrl: command.avatarUrl,
                     isDelegate: command.isDelegate,
                     reason: command.reason,
+                    participationTimes: 1,
+                    appliedAt: new Date(),
                 };
-                if (command.status === "confirmed") {
-                    delete dataToSave.reason;
-                    if (!command.isDelegate) {
-                        if (!game.participants.confirmed[command.team].some(function (x) { return x.openId === command.openId || x.nickName === command.nickName; })) {
-                            game.participants.confirmed[command.team].push(dataToSave);
-                        }
-                    }
-                    else {
-                        game.participants.confirmed[command.team].push(dataToSave);
-                    }
+                if (!(command.status === "confirmed")) return [3 /*break*/, 5];
+                delete dataToSave.reason;
+                if (!!command.isDelegate) return [3 /*break*/, 3];
+                if (game_service_1.GameService.isRegisteredInGame(game, command.openId)) {
+                    throw new Error("你已经报过名(或待定、请假)了，如需改变，请先取消报名");
                 }
-                else {
-                    if (!game.participants[command.status].some(function (x) { return x.openId === command.openId || x.nickName === command.nickName; })) {
-                        delete dataToSave.isDelegate;
-                        game.participants[command.status].push(dataToSave);
-                    }
-                }
-                return [4 /*yield*/, game.save()];
+                _a = dataToSave;
+                return [4 /*yield*/, player_service_1.PlayerService.updateParticipationTimes(command)];
             case 2:
-                _a.sent();
+                _a.participationTimes =
+                    _b.sent();
+                game.participants.confirmed[command.team].push(dataToSave);
+                return [3 /*break*/, 4];
+            case 3:
+                delete dataToSave.participationTimes;
+                game.participants.confirmed[command.team].push(dataToSave);
+                _b.label = 4;
+            case 4: return [3 /*break*/, 6];
+            case 5:
+                if (game_service_1.GameService.isRegisteredInGame(game, command.openId)) {
+                    throw new Error("你已经报过名(或待定、请假)了，如需改变，请先取消报名");
+                }
+                delete dataToSave.isDelegate;
+                delete dataToSave.participationTimes;
+                game.participants[command.status].push(dataToSave);
+                _b.label = 6;
+            case 6: return [4 /*yield*/, game.save()];
+            case 7:
+                _b.sent();
+                if (dataToSave.participationTimes) {
+                    return [2 /*return*/, res.json({
+                            participationTimes: dataToSave.participationTimes,
+                        })];
+                }
+                res.end();
+                return [2 /*return*/];
+        }
+    });
+}); });
+router.put("/:id/move-team", function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, moveToTeam, participant, game;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _a = req.body, moveToTeam = _a.moveToTeam, participant = _a.participant;
+                return [4 /*yield*/, game_1.Game.findById(req.params.id)];
+            case 1:
+                game = _b.sent();
+                if (!game) {
+                    throw new Error("未找到所指的的比赛!");
+                }
+                return [4 /*yield*/, game_service_1.GameService.moveOutFromConfirmed(game, participant._id, false)];
+            case 2:
+                _b.sent();
+                if (!Object.prototype.hasOwnProperty.call(game.participants.confirmed, moveToTeam)) return [3 /*break*/, 4];
+                if (game.participants.confirmed[moveToTeam].some(function (x) { return x._id.toString() === participant._id; })) {
+                    throw new Error("\u8BE5\u7403\u5458\u5DF2\u7ECF\u5728".concat(game_service_1.GameService.getTeamNameByCode(moveToTeam), "\u4E86"));
+                }
+                // delete participant._id;
+                game.participants.confirmed[moveToTeam].push(participant);
+                return [4 /*yield*/, game.save()];
+            case 3:
+                _b.sent();
+                _b.label = 4;
+            case 4:
                 res.end();
                 return [2 /*return*/];
         }

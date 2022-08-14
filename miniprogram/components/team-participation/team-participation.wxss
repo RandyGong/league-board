@@ -1,0 +1,130 @@
+.participant text {
+  flex: 1;
+  text-align: center;
+
+  line-height: 30px;
+  vertical-align: middle;
+}
+
+.participant image {
+  width: 50rpx;
+  height: 50rpx;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 16rpx;
+}
+
+.participant-row {
+  padding: 14rpx 40rpx;
+}
+
+.no-data-row {
+  background-color: rgb(228, 228, 228);
+}
+
+.confirmed-row1 {
+  background-color: rgb(184, 228, 255);
+}
+
+.confirmed-row2 {
+  background-color: rgb(205, 236, 255);
+}
+
+.tbd-row1 {
+  background-color: rgb(253, 225, 174);
+}
+
+.tbd-row2 {
+  background-color: rgb(255, 238, 205);
+}
+
+.leave-row1 {
+  background-color: rgb(255, 214, 221);
+}
+
+.leave-row2 {
+  background-color: rgb(255, 228, 233);
+}
+
+.team-name {
+  margin: 20rpx 0 10rpx 0;
+}
+
+.team-name text {
+  line-height: 50rpx;
+  vertical-align: middle;
+}
+
+.team-name image {
+  width: 50rpx;
+  height: 50rpx;
+  object-fit: cover;
+  vertical-align: middle;
+  margin-right: 10rpx;
+}
+
+.delegate {
+  padding: 6rpx 10rpx;
+  border-radius: 50%;
+  font-size: 20rpx;
+  background-color: rgb(84, 188, 253);
+  color: white;
+  position: relative;
+  left: 10rpx;
+  top: -2rpx;
+  /* width: 20rpx; */
+}
+
+.flex {
+  display: flex;
+}
+
+.space-between {
+  justify-content: space-between;
+}
+
+.space-around {
+  justify-content: space-around;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.white-border {
+  border: 2px solid rgb(255, 255, 255);
+}
+
+.blue-border {
+  border: 2px solid rgb(84, 188, 253);
+}
+
+.red-border {
+  border: 2px solid rgb(248, 134, 134);
+}
+
+.no-team-border {
+  border: 2px solid rgb(172, 172, 172);
+}
+
+.edit-player {
+  flex: 1;
+  gap: 6px;
+}
+
+.edit-player text {
+  background: #5e9ef1;
+  padding: 4px 10px;
+  height: 16px;
+  line-height: 16px;
+  position: relative;
+  top: 3px;
+  color: white;
+  font-size: 12px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.edit-player text:last-child {
+  background: #f35d5d;
+}

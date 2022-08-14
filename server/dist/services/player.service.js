@@ -36,25 +36,56 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var axios_1 = require("axios");
-var express = require("express");
-var router = express.Router();
-router.get("/wx-user-openId", function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
-    var code, url, result;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                code = req.query.code;
-                url = "https://api.weixin.qq.com/sns/jscode2session?appid=wx3899bc7f66c891f0&secret=bd8e9cf8fd3e3c9e0082b430298cc7f1&js_code=".concat(code, "&grant_type=authorization_code");
-                return [4 /*yield*/, axios_1.default.get(url)];
-            case 1:
-                result = _a.sent();
-                res.json({
-                    openId: result.data.openid,
-                });
-                return [2 /*return*/];
-        }
-    });
-}); });
-module.exports = router;
-//# sourceMappingURL=common.js.map
+exports.PlayerService = void 0;
+var player_data_1 = require("../models/player.data");
+var game_service_1 = require("./game.service");
+var PlayerService = /** @class */ (function () {
+    function PlayerService() {
+    }
+    PlayerService.updateParticipationTimes = function (command) {
+        return __awaiter(this, void 0, void 0, function () {
+            var participationTimes, player, playerData;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        participationTimes = 1;
+                        return [4 /*yield*/, player_data_1.PlayerData.findOne({ openId: command.openId })];
+                    case 1:
+                        player = _a.sent();
+                        if (player) {
+                            player.participationTimes += 1;
+                            player.save();
+                            participationTimes = player.participationTimes;
+                        }
+                        else {
+                            playerData = game_service_1.GameService.signUpCommandToPlayerData(command);
+                            player_data_1.PlayerData.insertMany([playerData]);
+                        }
+                        return [2 /*return*/, participationTimes];
+                }
+            });
+        });
+    };
+    PlayerService.recudeParticipationTimes = function (openId) {
+        return __awaiter(this, void 0, void 0, function () {
+            var player;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, player_data_1.PlayerData.findOne({ openId: openId })];
+                    case 1:
+                        player = _a.sent();
+                        if (!player) return [3 /*break*/, 3];
+                        player.participationTimes -= 1;
+                        return [4 /*yield*/, player.save()];
+                    case 2:
+                        _a.sent();
+                        _a.label = 3;
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    return PlayerService;
+}());
+exports.PlayerService = PlayerService;
+//# sourceMappingURL=player.service.js.map

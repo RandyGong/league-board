@@ -36,10 +36,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var errorHandler_1 = require("../errorHandler");
 var league_round_1 = require("../models/league.round");
 var league_service_1 = require("../services/league.service");
 var express = require("express");
-var router = express.Router();
+var router = (0, errorHandler_1.toAsyncRouter)(express.Router());
 /* GET league listing. */
 router.get("/", function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
     var leagueRound;

@@ -2,13 +2,16 @@ import {
   formatDate,
   toast,
   getThursdayOfCurrentWeek,
-  getMondayOfCurrentWeek,
+  getMondayOfNextWeek,
   getWeekday,
   modal
 } from '../../utils/util';
 import {
   request
 } from '../../utils/request';
+import {
+  GlobalEventEmitter
+} from '../../utils/eventEmitter';
 const chooseLocation = requirePlugin('chooseLocation');
 
 Page({
@@ -16,9 +19,16 @@ Page({
     isLoading: true,
     hasCurrentGame: false,
     showGameDataView: false,
-    isEditable: true,
+    isGameInfoEditable: false,
+    isPlayerDataEditable: false,
+    goingTobeEdit: '',
     loginHidden: true,
     signUpHidden: true,
+    isDelegate: false,
+    signUpStatus: 'confirmed',
+    isUserAlreadyInGame: false,
+    playerData: null,
+    isSharing: false,
 
     userInfo: {},
     hasUserInfo: false,
@@ -40,26 +50,31 @@ Page({
       index: 1
     },
     game: null,
-    totalConfirmed: 0
+    gameBeforeEdit: null,
+    totalConfirmed: 0,
   },
 
   async onLoad() {
-    let data = this.getGameDefaultData();
-
-    this.setData({
-      game: data
-    })
+    wx.showShareMenu({
+      withShareTicket: true,
+      menus: ['shareAppMessage', 'shareTimeline']
+    });
 
     if (wx.getUserProfile) {
       this.setData({
         canIUseGetUserProfile: true
       });
     }
+    GlobalEventEmitter.on('openIdGot', async (data) => {
+      console.log(`openIdGot`, data);
+      await this.getPlayerData(false);
+    });
 
-    await this.getCurrentGame();
+    // await this.getCurrentGame();
+
   },
 
-  onShow() {
+  async onShow() {
     const location = chooseLocation.getLocation(); // 如果点击确认选点按钮，则返回选点结果对象，否则返回null
     console.log({
       location
@@ -69,33 +84,149 @@ Page({
         ['game.location']: location
       });
     }
+
+    this.setData({
+      isSharing: false
+    });
+
+    await this.getCurrentGame();
   },
 
-  getUserProfile(e) {
+  async onPullDownRefresh() {
+    console.log('onPullDownRefresh');
+    await this.getCurrentGame();
+    wx.stopPullDownRefresh();
+  },
+
+  async getPlayerData(isShowLoading = true) {
+    const openId = wx.getStorageSync('openId');
+    if (!openId) return;
+
+    const player = await request('GET', `/players/${openId}`, null, isShowLoading);
+    console.log('player already exist in init?', player);
+
+    if (player) {
+      this.setData({
+        playerData: player
+      });
+    }
+  },
+
+  async getUserProfile(e) {
+    const isDelegate = e.currentTarget.dataset.delegate;
+    console.log('isDelegate', isDelegate);
+    const status = e.currentTarget.dataset.status;
+    console.log('status', status);
+
+    if (!isDelegate && this.data.isUserAlreadyInGame) {
+      toast('你已经报过名(或待定、请假)了，如需改变，请先取消报名', 'none', 3000, false);
+      return;
+    }
+
+    console.log('this.data.playerData', this.data.playerData);
+    if (this.data.playerData) {
+      this.setUserProfileAndShowSignUp(this.data.playerData, isDelegate, status);
+      return;
+    }
+
+    const openId = wx.getStorageSync('openId');
+    if (openId) {
+      const player = await request('GET', `/players/${openId}`);
+      console.log('player already exist?', player);
+
+      if (player) {
+        this.setUserProfileAndShowSignUp(player, isDelegate, status);
+      } else {
+        this.requestUserProfileAndShowSignUp(isDelegate, status);
+      }
+    } else {
+      this.requestUserProfileAndShowSignUp(isDelegate, status);
+    }
+  },
+
+  requestUserProfileAndShowSignUp(isDelegate, status) {
     wx.getUserProfile({
-      desc: '用于完善会员资料', // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
+      desc: '用于添加报名信息及统计参与次数', // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
       success: (res) => {
         console.log(`res user profile`, res);
-        this.setData({
-          userInfo: res.userInfo,
-          hasUserInfo: true,
-          signUpHidden: false
-        });
+        this.setUserProfileAndShowSignUp(res.userInfo, isDelegate, status);
       }
     })
   },
 
-  showLogin() {
+  setUserProfileAndShowSignUp(userInfo, isDelegate, status) {
     this.setData({
+      userInfo: userInfo,
+      hasUserInfo: true,
+    });
+    // if (this.data.game.type === '对内联赛') {
+    //   this.setData({
+    //     isDelegate: !!isDelegate,
+    //     signUpStatus: status,
+    //     signUpHidden: false
+    //   })
+    // } else {
+
+    // }
+
+    this.setData({
+      isDelegate: !!isDelegate,
+      signUpStatus: status,
+      signUpHidden: false
+    })
+  },
+
+  showLogin(e) {
+    const goingTobeEdit = e.currentTarget.dataset.name;
+    this.setData({
+      goingTobeEdit,
       loginHidden: false,
     });
   },
 
-  showCreateView() {
+  beforeShare() {
     this.setData({
-      showGameDataView: true,
-      isEditable: true
+      isSharing: true
     });
+  },
+
+  onShareTimeline: function (res) {
+    return {
+      title: this.getShareInfo(),
+      // imageUrl: `https://iti-images.s3.amazonaws.com/events/897195ed-1495-bc59-11e2-28704a1e2a92.webp`,
+      // query: "",
+    };
+  },
+  onShareAppMessage: function (res) {
+    return {
+      title: this.getShareInfo(),
+      // imageUrl: `https://iti-images.s3.amazonaws.com/events/897195ed-1495-bc59-11e2-28704a1e2a92.webp`,
+      path: "pages/create/create",
+    };
+  },
+
+  getShareInfo() {
+    const game = this.data.game;
+    return `${game.title} | ${game.date.dateString} ${game.date.dateWeekday} | ${game.date.timeString} | ${game.location.name} | ${game.type}`;
+  },
+
+  showCreateView() {
+    console.log('goingTobeEdit', this.data.goingTobeEdit);
+    // 为例避免比赛信息改变但还未提交时又更新球员信息，导致比赛信息无法更新
+    // 把编辑按钮改成两个，上面那个只负责编辑比赛信息，下面报名情况那个只负责编辑报名信息
+    // goingTobeEdit = 'player' | 'game'
+
+    if (this.data.goingTobeEdit === 'game') {
+      this.setData({
+        showGameDataView: true,
+        isGameInfoEditable: true
+      });
+    } else {
+      this.setData({
+        showGameDataView: true,
+        isPlayerDataEditable: true
+      });
+    }
   },
 
   bindDateChange: function (e) {
@@ -114,6 +245,10 @@ Page({
     this.setData({
       ['game.date.timeString']: e.detail.value
     })
+  },
+
+  bindTimeTap(e) {
+    if (!this.data.isGameInfoEditable) return;
   },
 
   bindMultiPickerChange: function (e) {
@@ -149,16 +284,29 @@ Page({
   showLocationMap() {
     const key = 'MR5BZ-EISLV-XCHPM-UG62Z-YPYV2-KUBTU'; //使用在腾讯位置服务申请的key
     const referer = '土拨鼠小程序'; //调用插件的app的名称
-    const location = '';
-    // const location = JSON.stringify({
-    //   latitude: 39.89631551,
-    //   longitude: 116.323459711
-    // });
-    const category = ''; //'生活服务,娱乐休闲';
 
-    wx.navigateTo({
-      url: `plugin://chooseLocation/index?key=${key}&referer=${referer}&location=${location}&category=${category}`
-    });
+    let location = '',
+      category = ''; //'生活服务,娱乐休闲'
+    if (this.data.game?.location) {
+      location = JSON.stringify({
+        latitude: this.data.game.location.latitude,
+        longitude: this.data.game.location.longitude
+      });
+    }
+
+    if (this.data.isGameInfoEditable) {
+      wx.navigateTo({
+        url: `plugin://chooseLocation/index?key=${key}&referer=${referer}&location=${location}&category=${category}`
+      });
+    } else {
+      wx.openLocation({
+        latitude: this.data.game.location.latitude,
+        longitude: this.data.game.location.longitude,
+        scale: 18,
+        name: this.data.game.location.name,
+        address: this.data.game.location.address,
+      });
+    }
   },
 
   bindGameTypeChange: function (e) {
@@ -191,39 +339,103 @@ Page({
 
   getTotalConfirmed(currentGame) {
     const total = currentGame.participants.confirmed.noTeam.length + currentGame.participants.confirmed.white.length + currentGame.participants.confirmed.blue.length + currentGame.participants.confirmed.red.length;
-    console.log('totalConfirmed', total);
     return total;
   },
 
-  async getCurrentGame(showLoading = false) {
-    let currentGame = await request('GET', `/game/current`, null, showLoading);
+  isRegisteredInGame(currentGame) {
+    const openId = wx.getStorageSync('openId');
+    if (!openId) return false;
+
+    let isAlreadyJoined = false;
+
+    // 任意一队里有这个人，且不是代报名的，就不能再报了
+    for (const key in currentGame.participants.confirmed) {
+      if (
+        Object.prototype.hasOwnProperty.call(currentGame.participants.confirmed, key)
+      ) {
+        if (
+          currentGame.participants.confirmed[key].some(
+            (x) => !x.isDelegate && x.openId === openId
+          )
+        ) {
+          isAlreadyJoined = true;
+        }
+      }
+    }
+
+    // 待定了或者请假了
+    if (
+      currentGame.participants.tbd.some((x) => x.openId === openId) ||
+      currentGame.participants.leave.some((x) => x.openId === openId)
+    ) {
+      isAlreadyJoined = true;
+    }
+
+    return isAlreadyJoined;
+  },
+
+  async getCurrentGame() {
+    const startTime = new Date().getTime();
+    let currentGame = await request('GET', `/game/current`, null, false);
     console.log(currentGame);
 
-    this.setData({
-      isLoading: false,
-    });
+    const endTime = new Date().getTime();
+    let diff = endTime - startTime,
+      delay = 0;
 
     if (currentGame) {
+      // 让启动页面至少显示1200ms
+      if (diff < 1200) {
+        delay = 1200 - diff;
+      }
+
       const weekDay = getWeekday(currentGame.date.dateString);
       currentGame.date.dateWeekday = weekDay;
       const totalConfirmed = this.getTotalConfirmed(currentGame);
+      const isAlreadyIn = this.isRegisteredInGame(currentGame);
+      console.log('isAlreadyIn', isAlreadyIn);
 
-      this.setData({
-        game: currentGame,
-        hasCurrentGame: true,
-        showGameDataView: true,
-        isEditable: false,
-        totalConfirmed
-      });
+      const gameTypeIndex = this.data.gameType.types.indexOf(currentGame.type);
+      const gameASideIndex = this.data.aSideType.types.indexOf(currentGame.aSide);
+
+      setTimeout(() => {
+        this.setData({
+          game: currentGame,
+          hasCurrentGame: true,
+          showGameDataView: true,
+          // isEditable: false,
+          totalConfirmed,
+          isUserAlreadyInGame: isAlreadyIn,
+          isLoading: false,
+          ['gameType.index']: gameTypeIndex,
+          ['aSideType.index']: gameASideIndex,
+        });
+      }, delay);
     } else {
-      this.setData({
-        game: this.getGameDefaultData(),
-        hasCurrentGame: false,
-        showGameDataView: false,
-        isEditable: true,
-        totalConfirmed: 0
-      });
+      if (diff < 2200) {
+        delay = 2200 - diff;
+      }
+
+      setTimeout(() => {
+        this.setData({
+          game: this.getGameDefaultData(),
+          hasCurrentGame: false,
+          showGameDataView: false,
+          isGameInfoEditable: true,
+          isLoading: false,
+          totalConfirmed: 0,
+          isUserAlreadyInGame: false,
+        });
+      }, delay);
     }
+  },
+
+  async onAdminSuccess() {
+    console.log('onAdminSuccess');
+    toast('操作成功', 'none', 3000, false, true);
+
+    await this.getCurrentGame();
+    this.setEditable(false, true);
   },
 
   processTime() {
@@ -242,10 +454,18 @@ Page({
     const result = await request('POST', `/game`, this.data.game);
     console.log(result);
 
-    toast("比赛已发布！", 'none', 3000, false);
+    toast("比赛已发布，点击右上角按钮分享吧！");
 
     const isShowLoading = false;
     await this.getCurrentGame(isShowLoading);
+    this.setEditable(false, false);
+  },
+
+  setEditable(isGameInfoEditable, isPlayerDataEditable) {
+    this.setData({
+      isGameInfoEditable,
+      isPlayerDataEditable
+    });
   },
 
   async updateGame() {
@@ -256,8 +476,8 @@ Page({
     console.log(result);
 
     toast("比赛数据已更新！", 'none', 3000, false);
-    const isShowLoading = false;
-    await this.getCurrentGame(isShowLoading);
+    await this.getCurrentGame();
+    this.setEditable(false, false);
   },
 
   async deleteGame() {
@@ -268,17 +488,15 @@ Page({
       console.log(result);
 
       toast("比赛已删除！", 'none', 3000, false);
-      const isShowLoading = false;
-      await this.getCurrentGame(isShowLoading);
+      await this.getCurrentGame();
     }
   },
 
-  async signUp() {
-    const openId = wx.setStorageSync('openId');
-
-    if (this.data.game.type === '对内联赛') {
-
-    }
+  cancelEdit() {
+    this.setData({
+      isGameInfoEditable: false,
+      isPlayerDataEditable: false
+    });
   },
 
   getGameDefaultData() {
@@ -293,7 +511,7 @@ Page({
       dateWeekday = '周四';
       title = '周四走起';
     } else {
-      const thisMonday = getMondayOfCurrentWeek();
+      const thisMonday = getMondayOfNextWeek();
       console.log(`thisMonday`, thisMonday);
       dateString = formatDate(thisMonday);
       dateWeekday = '周一';

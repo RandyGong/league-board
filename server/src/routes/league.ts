@@ -1,9 +1,10 @@
 import { LeagueRoundCommand } from "../commands/league.round.command";
+import { toAsyncRouter } from "../errorHandler";
 import { ILeagueRound, LeagueRound } from "../models/league.round";
 import { LeagueService } from "../services/league.service";
 
 var express = require("express");
-var router = express.Router();
+var router = toAsyncRouter(express.Router());
 
 /* GET league listing. */
 router.get("/", async (req, res, next) => {

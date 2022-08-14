@@ -22,15 +22,13 @@ RUN npm i pm2 -g
 ENV PORT 3210
 EXPOSE 3210
 
-#CMD ["npm", "run", "docker-start"]
-#CMD ["pm2-runtime", "start", "/imgoing/server/dist/server.js", "-- production"]
 CMD ["pm2-runtime", "start", "/league-board/server/dist/index.js"]
 
 
-# docker build -t imgoing-web .
+# docker build -t league-board-api .
 # docker run -d -p 8080:8080 imageId
 # docker login
-# docker tag imageId randygong/imgoing-web:v1
-# docker push randygong/imgoing-web:v1
+# docker tag imageId randygong/league-board-api:v1
+# docker push randygong/league-board-api:v1
 
 # docker rm $(docker ps -a -f status=exited -q)

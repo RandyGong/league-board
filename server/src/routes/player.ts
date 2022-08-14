@@ -1,12 +1,18 @@
 import { PlayerDataCommand } from "../commands/player.data.command";
+import { toAsyncRouter } from "../errorHandler";
 import { PlayerData } from "../models/player.data";
 
 var express = require("express");
-var router = express.Router();
+var router = toAsyncRouter(express.Router());
 
 /* GET players listing. */
 router.get("/", async (req, res, next) => {
   const playerData = await PlayerData.find({});
+  res.send(playerData);
+});
+
+router.get("/:openId", async (req, res, next) => {
+  const playerData = await PlayerData.findOne({ openId: req.params.openId });
   res.send(playerData);
 });
 

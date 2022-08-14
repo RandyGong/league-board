@@ -35,6 +35,8 @@ exports.gameSchema = new mongoose.Schema({
                     nickName: String,
                     avatarUrl: String,
                     isDelegate: Boolean,
+                    participationTimes: Number,
+                    appliedAt: Date,
                 },
             ],
             white: [
@@ -43,6 +45,8 @@ exports.gameSchema = new mongoose.Schema({
                     nickName: String,
                     avatarUrl: String,
                     isDelegate: Boolean,
+                    participationTimes: Number,
+                    appliedAt: Date,
                 },
             ],
             blue: [
@@ -51,6 +55,8 @@ exports.gameSchema = new mongoose.Schema({
                     nickName: String,
                     avatarUrl: String,
                     isDelegate: Boolean,
+                    participationTimes: Number,
+                    appliedAt: Date,
                 },
             ],
             red: [
@@ -59,6 +65,8 @@ exports.gameSchema = new mongoose.Schema({
                     nickName: String,
                     avatarUrl: String,
                     isDelegate: Boolean,
+                    participationTimes: Number,
+                    appliedAt: Date,
                 },
             ],
         },
@@ -68,6 +76,7 @@ exports.gameSchema = new mongoose.Schema({
                 nickName: String,
                 avatarUrl: String,
                 reason: String,
+                appliedAt: Date,
             },
         ],
         leave: [
@@ -76,6 +85,7 @@ exports.gameSchema = new mongoose.Schema({
                 nickName: String,
                 avatarUrl: String,
                 reason: String,
+                appliedAt: Date,
             },
         ],
     },

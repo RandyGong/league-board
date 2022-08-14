@@ -1,4 +1,8 @@
 {
   "navigationBarTitleText": "往期比赛",
-  "usingComponents": {}
+  "usingComponents": {
+    "team-participation": "/components/team-participation/team-participation"
+  },
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark"
 }

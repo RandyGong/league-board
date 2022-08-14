@@ -1,1 +1,146 @@
-<view>This is game list</view>
+<view class="list-bg">
+  <view class="title-wrap m-b-1">
+    <view class="title">往期比赛</view>
+    <view class="tip">没有球踢的时候，回顾一下往期比赛吧~</view>
+  </view>
+
+  <view wx:if="{{isLoading}}">
+    <view class="panel">
+      <view style="width: 50%;;height: 40rpx;background: #eee;"></view>
+      <view style="width: 100%;;height: 38rpx;background: #eee;margin-top: 10rpx;"></view>
+      <view style="width: 100%;;height: 38rpx;background: #eee;margin-top: 10rpx;"></view>
+      <view style="width: 100%;;height: 38rpx;background: #eee;margin-top: 10rpx;"></view>
+      <view style="width: 100%;;height: 38rpx;background: #eee;margin-top: 10rpx;"></view>
+    </view>
+
+    <view class="panel m-t-1">
+      <view style="width: 50%;;height: 40rpx;background: #eee;"></view>
+      <view style="width: 100%;;height: 38rpx;background: #eee;margin-top: 10rpx;"></view>
+      <view style="width: 100%;;height: 38rpx;background: #eee;margin-top: 10rpx;"></view>
+      <view style="width: 100%;;height: 38rpx;background: #eee;margin-top: 10rpx;"></view>
+      <view style="width: 100%;;height: 38rpx;background: #eee;margin-top: 10rpx;"></view>
+    </view>
+
+    <view class="panel m-t-1">
+      <view style="width: 50%;;height: 40rpx;background: #eee;"></view>
+      <view style="width: 100%;;height: 38rpx;background: #eee;margin-top: 10rpx;"></view>
+      <view style="width: 100%;;height: 38rpx;background: #eee;margin-top: 10rpx;"></view>
+      <view style="width: 100%;;height: 38rpx;background: #eee;margin-top: 10rpx;"></view>
+      <view style="width: 100%;;height: 38rpx;background: #eee;margin-top: 10rpx;"></view>
+    </view>
+  </view>
+
+  <view wx:if="{{!isLoading && !gameList.length}}">
+    <view class="text-center">
+      <view style="margin-top: 130px;">
+        <image src="../../images/big-ball.png" style="width: 100px;height: 100px;position: relative;left:-10px"></image>
+        <view style="font-size: 36rpx;margin-top: 40rpx;color:gray">暂无数据~</view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{!isLoading}}" id="{{item._id}}" class="panel m-b-1" wx:for="{{gameList}}" wx:key="id" wx:for-index="idx" data-game="{{item}}">
+    <view class="panel-title">{{item.title}}</view>
+
+    <view class="game-data">
+      <view>
+        <text>{{item.date.dateString}}</text> @
+        <text>{{item.date.timeString}}</text>
+      </view>
+
+      <view>
+        <text>{{item.type}}</text> -
+        <text>{{item.aSide}}</text> -
+        <text>散客费用: {{item.fee.randomMember}}</text>
+      </view>
+
+      <view>
+        <text>{{item.location.name}}</text>
+      </view>
+
+      <view class="flex show-more" bindtap="showMore" data-index="{{idx}}">
+        <image wx:if="{{!item.isShowMore}}" src="../../images/arrow-down-white.png"></image>
+        <image wx:if="{{item.isShowMore}}" src="../../images/arrow-down-white.png" class="vertical-reverse"></image>
+      </view>
+    </view>
+
+    <view wx:if="{{item.isShowMore}}">
+      <view>
+        <view class="title-dot confirmed-dot m-t-1"></view>报名
+      </view>
+
+      <block wx:if="{{item.type==='对内联赛'}}">
+        <view class="team-name">
+          <image src="../../images/white.png"></image><text> 白队</text>
+        </view>
+        <view class="player-data" wx:for="{{item.participants.confirmed.white}}" wx:key="id" wx:for-index="playerIndex" wx:for-item="player">
+          <image src="{{player.avatarUrl}}"></image>
+          <text>{{player.nickName}}</text>
+          <text wx:if="{{player.isDelegate}}" class="delegate">代</text>
+        </view>
+        <view wx:if="{{!item.participants.confirmed.white.length}}" class="player-data">(无人)</view>
+
+        <view class="team-name">
+          <image src="../../images/blue.png"></image><text> 蓝队</text>
+        </view>
+        <view class="player-data" wx:for="{{item.participants.confirmed.blue}}" wx:key="id" wx:for-index="playerIndex" wx:for-item="player">
+          <image src="{{player.avatarUrl}}"></image>
+          <text>{{player.nickName}}</text>
+          <text wx:if="{{player.isDelegate}}" class="delegate">代</text>
+        </view>
+        <view wx:if="{{!item.participants.confirmed.blue.length}}" class="player-data">(无人)</view>
+
+        <view class="team-name">
+          <image src="../../images/red.png"></image><text> 红队</text>
+        </view>
+        <view class="player-data" wx:for="{{item.participants.confirmed.red}}" wx:key="id" wx:for-index="playerIndex" wx:for-item="player">
+          <image src="{{player.avatarUrl}}"></image>
+          <text>{{player.nickName}}</text>
+          <text wx:if="{{player.isDelegate}}" class="delegate">代</text>
+        </view>
+        <view wx:if="{{!item.participants.confirmed.red.length}}" class="player-data">(无人)</view>
+
+        <view class="team-name">
+          <image src="../../images/unknown.png"></image><text> 未分组</text>
+        </view>
+      </block>
+
+      <view class="player-data" wx:for="{{item.participants.confirmed.noTeam}}" wx:key="id" wx:for-index="playerIndex" wx:for-item="player">
+        <image src="{{player.avatarUrl}}"></image>
+        <text>{{player.nickName}}</text>
+        <text wx:if="{{player.isDelegate}}" class="delegate">代</text>
+      </view>
+      <view wx:if="{{!item.participants.confirmed.noTeam.length}}" class="player-data">(无人)</view>
+
+      <view class="m-t-1">
+        <view>
+          <view class="title-dot tbd-dot"></view>待定
+        </view>
+        <view class="player-data" wx:for="{{item.participants.tbd}}" wx:key="id" wx:for-index="playerIndex" wx:for-item="player">
+          <image src="{{player.avatarUrl}}"></image>
+          <text>{{player.nickName}}</text>
+          <text> ({{player.reason}})</text>
+        </view>
+        <view wx:if="{{!item.participants.tbd.length}}" class="player-data">(无人)</view>
+
+      </view>
+
+      <view class="m-t-1">
+        <view>
+          <view class="title-dot leave-dot"></view>请假
+        </view>
+        <view wx:for="{{item.participants.leave}}" wx:key="id" wx:for-index="playerIndex" wx:for-item="player" style="display: inline;margin-right: 12px;">
+          <view class="player-data">
+            <image src="{{player.avatarUrl}}"></image>
+            <text>{{player.nickName}}</text>
+            <text> ({{player.reason}})</text>
+          </view>
+        </view>
+        <view wx:if="{{!item.participants.leave.length}}" class="player-data">(无人)</view>
+
+      </view>
+
+    </view>
+
+  </view>
+</view>
