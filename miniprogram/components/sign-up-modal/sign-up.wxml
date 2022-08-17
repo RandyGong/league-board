@@ -1,10 +1,18 @@
 <modal hidden="{{hidden}}" confirm-text="确定" cancel-text="取消" bindconfirm="signUp" bindcancel="cancel">
-  <view wx:if="{{gameType==='对内联赛'}}">
-    <view wx:if="{{status==='confirmed'}}">
+  <!-- <view wx:if="{{gameType==='对内联赛'}}"> -->
+    <view>
+    <!-- <view wx:if="{{status==='confirmed'}}"> -->
+    <view>
       <view wx:if="{{!!customTitle}}" class="sign-up-title">{{customTitle}}</view>
-      <view wx:else class="sign-up-title">请选择球队<text wx:if="{{isDelegate}}">(代报名)</text></view>
+      <view wx:if="{{status==='confirmed'&&gameType==='对内联赛'&&!customTitle}}" class="sign-up-title">请选择球队<text wx:if="{{isDelegate}}">(代报名)</text></view>
 
-      <view class="flex space-between" style="gap:4rpx">
+      <radio-group wx:if="{{isMoveTeam}}" class="radio-group flex space-around" bindchange="moveStatusChange">
+        <radio class="radio" wx:for-items="{{moveStatuses}}" wx:key="name" value="{{item.key}}" checked="{{item.key===status}}">
+          <text>{{item.name}}</text>
+        </radio>
+      </radio-group>
+
+      <view wx:if="{{status==='confirmed'&&gameType==='对内联赛'}}" class="flex space-between" style="gap:4rpx">
         <view class="team-radio {{team==='white'?'selected':''}}" bindtap="selectTeam" data-team="white">
           <image src="../../images/white.png"></image>
           <view class="team-name">白队</view>
@@ -18,25 +26,28 @@
           <view class="team-name" style="color: rgb(245, 43, 43);">红队</view>
         </view>
         <view class="team-radio {{team==='noTeam'?'selected':''}}" bindtap="selectTeam" data-team="noTeam">
-          <image src="../../images/unknown.png"></image>
+          <image src="../../images/noTeam.png"></image>
           <view class="team-name">暂不选择</view>
         </view>
       </view>
+
+      <view wx:if="{{status!=='confirmed'}}">
+        <view class="sign-up-title">请说明理由</view>
+
+        <radio-group class="radio-group" bindchange="radioChange">
+          <radio class="radio" wx:for-items="{{reasons}}" wx:key="name" value="{{item.name}}" checked="{{userInfo&& userInfo.reason && (userInfo.reason===item.name)}}">
+            <text>{{item.name}}</text>
+          </radio>
+        </radio-group>
+
+        或：<input class="input" adjust-position fixed type="text" maxlength="10" value="{{userInfo.reason}}" bindinput="reasonInput" />
+      </view>
+
     </view>
   </view>
-  <view wx:if="{{gameType!=='对内联赛'&&status==='confirmed'}}">
+
+  <view wx:if="{{!isMoveTeam&&gameType!=='对内联赛'&&status==='confirmed'}}">
     <view class="text-center">确定要{{isDelegate?'代':''}}报名吗？</view>
   </view>
 
-  <view wx:if="{{status!=='confirmed'}}">
-    <view class="sign-up-title">请说明理由</view>
-
-    <radio-group class="radio-group" bindchange="radioChange">
-      <radio class="radio" wx:for-items="{{reasons}}" wx:key="name" value="{{item.name}}" checked="{{item.checked}}">
-        <text>{{item.name}}</text>
-      </radio>
-    </radio-group>
-
-    或：<input class="input" adjust-position fixed type="text" maxlength="10" bindinput="reasonInput" />
-  </view>
 </modal>

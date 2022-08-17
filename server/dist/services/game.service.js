@@ -52,8 +52,8 @@ var GameService = /** @class */ (function () {
             }
         }
         // 待定了或者请假了
-        if (game.participants.tbd.some(function (x) { return x.openId === openId; }) ||
-            game.participants.leave.some(function (x) { return x.openId === openId; })) {
+        if (game.participants.tbd.some(function (x) { return x.openId === openId && !x.isDelegate; }) ||
+            game.participants.leave.some(function (x) { return x.openId === openId && !x.isDelegate; })) {
             isAlreadyJoined = true;
         }
         return isAlreadyJoined;
@@ -70,18 +70,18 @@ var GameService = /** @class */ (function () {
             createdAt: new Date(),
         };
     };
-    GameService.moveOutFromConfirmed = function (game, participantObjectId, isReduceParticipationTimes) {
+    GameService.moveOutFromAllStatus = function (game, participantObjectId, isReduceParticipationTimes) {
         if (isReduceParticipationTimes === void 0) { isReduceParticipationTimes = true; }
         return __awaiter(this, void 0, void 0, function () {
-            var _a, _b, _i, key, data;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            var _a, _b, _i, key, data, _c;
+            return __generator(this, function (_d) {
+                switch (_d.label) {
                     case 0:
                         _a = [];
                         for (_b in game.participants.confirmed)
                             _a.push(_b);
                         _i = 0;
-                        _c.label = 1;
+                        _d.label = 1;
                     case 1:
                         if (!(_i < _a.length)) return [3 /*break*/, 5];
                         key = _a[_i];
@@ -89,27 +89,57 @@ var GameService = /** @class */ (function () {
                         if (!isReduceParticipationTimes) return [3 /*break*/, 3];
                         data = game.participants.confirmed[key].find(function (x) { return !x.isDelegate && x["_id"].toString() === participantObjectId; });
                         if (!data) return [3 /*break*/, 3];
-                        data.participationTimes -= 1;
-                        return [4 /*yield*/, player_service_1.PlayerService.recudeParticipationTimes(data.openId)];
+                        _c = data;
+                        return [4 /*yield*/, player_service_1.PlayerService.addParticipationTimes(data.openId, -1)];
                     case 2:
-                        _c.sent();
-                        _c.label = 3;
+                        _c.participationTimes = _d.sent();
+                        _d.label = 3;
                     case 3:
                         game.participants.confirmed[key] = game.participants.confirmed[key].filter(function (x) { return x["_id"].toString() !== participantObjectId; });
-                        _c.label = 4;
+                        _d.label = 4;
                     case 4:
                         _i++;
                         return [3 /*break*/, 1];
-                    case 5: return [2 /*return*/];
+                    case 5:
+                        game.participants.tbd = game.participants.tbd.filter(function (x) { return x["_id"].toString() !== participantObjectId; });
+                        game.participants.leave = game.participants.leave.filter(function (x) { return x["_id"].toString() !== participantObjectId; });
+                        return [2 /*return*/];
                 }
             });
         });
+    };
+    GameService.getStatusOfParticipant = function (game, _id) {
+        if (!game || !_id) {
+            throw new Error("请检查参数");
+        }
+        for (var key in game.participants.confirmed) {
+            if (Object.prototype.hasOwnProperty.call(game.participants.confirmed, key)) {
+                if (game.participants.confirmed[key].some(function (x) { return x["_id"].toString() === _id; })) {
+                    return "confirmed";
+                }
+            }
+        }
+        if (game.participants.tbd.some(function (x) { return x["_id"].toString() === _id; })) {
+            return "tbd";
+        }
+        if (game.participants.leave.some(function (x) { return x["_id"].toString() === _id; })) {
+            return "leave";
+        }
+        return null;
     };
     GameService.getTeamNameByCode = function (code) {
         var teams = {
             white: "白队",
             blue: "蓝队",
             red: "红队",
+        };
+        return teams[code];
+    };
+    GameService.getStatusNameByCode = function (code) {
+        var teams = {
+            confirmed: "已报名",
+            tbd: "待定",
+            leave: "请假",
         };
         return teams[code];
     };

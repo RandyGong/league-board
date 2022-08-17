@@ -20,11 +20,17 @@ export class PlayerService {
     return participationTimes;
   }
 
-  public static async recudeParticipationTimes(openId: string) {
+  public static async addParticipationTimes(
+    openId: string,
+    timesDiff: number
+  ): Promise<number> {
     let player = await PlayerData.findOne({ openId: openId });
-    if (player) {
-      player.participationTimes -= 1;
-      await player.save();
+    if (!player) {
+      throw new Error("未找到该openId对应的人员");
     }
+
+    player.participationTimes += timesDiff;
+    await player.save();
+    return player.participationTimes;
   }
 }

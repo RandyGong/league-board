@@ -15,15 +15,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use((err, req, res, next) => {
-  console.log("in handler1");
-  console.log("====================================");
-  console.log(err);
-  console.log("====================================");
-
-  next(err);
-});
-
 app.use("/players", playersRouter);
 app.use("/league", leagueRoundRouter);
 app.use("/game", gameRouter);

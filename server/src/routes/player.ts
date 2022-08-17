@@ -7,7 +7,12 @@ var router = toAsyncRouter(express.Router());
 
 /* GET players listing. */
 router.get("/", async (req, res, next) => {
-  const playerData = await PlayerData.find({});
+  const playerData = await PlayerData.find();
+  res.send(playerData);
+});
+
+router.get("/all-players-for-board", async (req, res, next) => {
+  const playerData = await PlayerData.find({ nickName: { $exists: false } });
   res.send(playerData);
 });
 
@@ -17,11 +22,17 @@ router.get("/:openId", async (req, res, next) => {
 });
 
 router.get("/goal-rank", async (req, res, next) => {
-  const playerData = await PlayerData.find({}).sort({ goal: -1 });
+  const playerData = await PlayerData.find({
+    nickName: { $exists: false },
+  }).sort({ goal: -1 });
   res.send(playerData);
 });
 router.get("/assist-rank", async (req, res, next) => {
-  const playerData = await PlayerData.find({}).sort({ assist: -1 });
+  const playerData = await PlayerData.find({
+    nickName: { $exists: false },
+  }).sort({
+    assist: -1,
+  });
   res.send(playerData);
 });
 

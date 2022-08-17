@@ -37,7 +37,8 @@ App({
   },
   globalData: {
     userInfo: null,
-  }
+  },
+
 })
 
 String.prototype.replaceAll = function (search, replacement) {

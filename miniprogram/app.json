@@ -15,7 +15,7 @@
   "sitemapLocation": "sitemap.json",
   
   "tabBar": {
-    
+    "custom": true,
     "color": "#999",
     "list": [
       {
@@ -28,7 +28,8 @@
         "pagePath": "pages/create/create",
         "text": "当前比赛",
         "iconPath": "images/ball.png",
-        "selectedIconPath": "images/ball.png"
+        "selectedIconPath": "images/ball.png",
+        "diyClass": "diy"
       },
       {
         "pagePath": "pages/index/index",

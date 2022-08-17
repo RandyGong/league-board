@@ -67,35 +67,6 @@ var game_service_1 = require("../services/game.service");
 var player_service_1 = require("../services/player.service");
 var express = require("express");
 var router = (0, errorHandler_1.toAsyncRouter)(express.Router());
-router.get("/", function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
-    var allGames;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0: return [4 /*yield*/, game_1.Game.find({}, "title date type aSide fee.randomMember location.name").sort({ "date.startTime": -1 })];
-            case 1:
-                allGames = _a.sent();
-                if (allGames.length) {
-                    if (allGames[0].date.endTime.getTime() > new Date().getTime()) {
-                        allGames = allGames.slice(1);
-                    }
-                }
-                res.send(allGames);
-                return [2 /*return*/];
-        }
-    });
-}); });
-router.get("/:_id", function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
-    var game;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0: return [4 /*yield*/, game_1.Game.findById(req.params._id)];
-            case 1:
-                game = _a.sent();
-                res.send(game);
-                return [2 /*return*/];
-        }
-    });
-}); });
 router.get("/current", function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
     var latestGame, key;
     var _a;
@@ -123,6 +94,35 @@ router.get("/current", function (req, res, next) { return __awaiter(void 0, void
                     return [2 /*return*/, res.json(latestGame)];
                 }
                 res.send(null);
+                return [2 /*return*/];
+        }
+    });
+}); });
+router.get("/:_id", function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
+    var game;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, game_1.Game.findById(req.params._id)];
+            case 1:
+                game = _a.sent();
+                res.send(game);
+                return [2 /*return*/];
+        }
+    });
+}); });
+router.get("/", function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
+    var allGames;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, game_1.Game.find({}, "title date type aSide fee.randomMember location.name").sort({ "date.startTime": -1 })];
+            case 1:
+                allGames = _a.sent();
+                if (allGames.length) {
+                    if (allGames[0].date.endTime.getTime() > new Date().getTime()) {
+                        allGames = allGames.slice(1);
+                    }
+                }
+                res.send(allGames);
                 return [2 /*return*/];
         }
     });
@@ -180,11 +180,9 @@ router.put("/:id/sign-off", function (req, res, next) { return __awaiter(void 0,
                 if (!game) {
                     throw new Error("未找到所指的的比赛!");
                 }
-                return [4 /*yield*/, game_service_1.GameService.moveOutFromConfirmed(game, participantObjectId, true)];
+                return [4 /*yield*/, game_service_1.GameService.moveOutFromAllStatus(game, participantObjectId, true)];
             case 2:
                 _a.sent();
-                game.participants.tbd = game.participants.tbd.filter(function (x) { return x["_id"].toString() !== participantObjectId; });
-                game.participants.leave = game.participants.leave.filter(function (x) { return x["_id"].toString() !== participantObjectId; });
                 return [4 /*yield*/, game.save()];
             case 3:
                 _a.sent();
@@ -203,7 +201,7 @@ router.put("/:id/sign-up", function (req, res, next) { return __awaiter(void 0, 
             case 1:
                 game = _b.sent();
                 if (!game) {
-                    throw new Error("当前比赛未找到!");
+                    throw new Error("未找到当前比赛!");
                 }
                 dataToSave = {
                     openId: command.openId,
@@ -253,32 +251,57 @@ router.put("/:id/sign-up", function (req, res, next) { return __awaiter(void 0, 
         }
     });
 }); });
-router.put("/:id/move-team", function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, moveToTeam, participant, game;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
+router.put("/:id/move", function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, moveToTeam, participant, toStatus, game, fromStatus, correctStatus, tbdOrLeave, isReduceParticipationTimes, _b, _c;
+    return __generator(this, function (_d) {
+        switch (_d.label) {
             case 0:
-                _a = req.body, moveToTeam = _a.moveToTeam, participant = _a.participant;
+                _a = req.body, moveToTeam = _a.moveToTeam, participant = _a.participant, toStatus = _a.toStatus;
                 return [4 /*yield*/, game_1.Game.findById(req.params.id)];
             case 1:
-                game = _b.sent();
+                game = _d.sent();
                 if (!game) {
                     throw new Error("未找到所指的的比赛!");
                 }
-                return [4 /*yield*/, game_service_1.GameService.moveOutFromConfirmed(game, participant._id, false)];
-            case 2:
-                _b.sent();
-                if (!Object.prototype.hasOwnProperty.call(game.participants.confirmed, moveToTeam)) return [3 /*break*/, 4];
-                if (game.participants.confirmed[moveToTeam].some(function (x) { return x._id.toString() === participant._id; })) {
-                    throw new Error("\u8BE5\u7403\u5458\u5DF2\u7ECF\u5728".concat(game_service_1.GameService.getTeamNameByCode(moveToTeam), "\u4E86"));
+                fromStatus = game_service_1.GameService.getStatusOfParticipant(game, participant._id);
+                correctStatus = ["confirmed", "tbd", "leave"];
+                if (!correctStatus.includes(fromStatus) ||
+                    !correctStatus.includes(toStatus)) {
+                    throw new Error("请检查status");
                 }
-                // delete participant._id;
-                game.participants.confirmed[moveToTeam].push(participant);
+                tbdOrLeave = ["tbd", "leave"];
+                isReduceParticipationTimes = fromStatus === "confirmed" &&
+                    tbdOrLeave.includes(toStatus) &&
+                    !participant.isDelegate;
+                return [4 /*yield*/, game_service_1.GameService.moveOutFromAllStatus(game, participant._id, isReduceParticipationTimes)];
+            case 2:
+                _d.sent();
+                if (!tbdOrLeave.includes(toStatus)) return [3 /*break*/, 4];
+                delete participant.participationTimes;
+                game.participants[toStatus].push(participant);
                 return [4 /*yield*/, game.save()];
             case 3:
-                _b.sent();
-                _b.label = 4;
+                _d.sent();
+                return [3 /*break*/, 8];
             case 4:
+                if (!Object.prototype.hasOwnProperty.call(game.participants.confirmed, moveToTeam)) {
+                    throw new Error("请检查team");
+                }
+                if (!(tbdOrLeave.includes(fromStatus) && !participant.isDelegate)) return [3 /*break*/, 6];
+                _b = participant;
+                _c = "participationTimes";
+                return [4 /*yield*/, player_service_1.PlayerService.addParticipationTimes(participant.openId, 1)];
+            case 5:
+                _b[_c] =
+                    _d.sent();
+                _d.label = 6;
+            case 6:
+                game.participants.confirmed[moveToTeam].push(participant);
+                return [4 /*yield*/, game.save()];
+            case 7:
+                _d.sent();
+                _d.label = 8;
+            case 8:
                 res.end();
                 return [2 /*return*/];
         }

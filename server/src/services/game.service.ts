@@ -24,8 +24,8 @@ export class GameService {
 
     // 待定了或者请假了
     if (
-      game.participants.tbd.some((x) => x.openId === openId) ||
-      game.participants.leave.some((x) => x.openId === openId)
+      game.participants.tbd.some((x) => x.openId === openId && !x.isDelegate) ||
+      game.participants.leave.some((x) => x.openId === openId && !x.isDelegate)
     ) {
       isAlreadyJoined = true;
     }
@@ -46,7 +46,7 @@ export class GameService {
     } as IPlayerData;
   }
 
-  public static async moveOutFromConfirmed(
+  public static async moveOutFromAllStatus(
     game: IGame,
     participantObjectId: string,
     isReduceParticipationTimes = true
@@ -60,8 +60,10 @@ export class GameService {
             (x) => !x.isDelegate && x["_id"].toString() === participantObjectId
           );
           if (data) {
-            data.participationTimes -= 1;
-            await PlayerService.recudeParticipationTimes(data.openId);
+            data.participationTimes = await PlayerService.addParticipationTimes(
+              data.openId,
+              -1
+            );
           }
         }
 
@@ -70,6 +72,41 @@ export class GameService {
         ].filter((x) => x["_id"].toString() !== participantObjectId);
       }
     }
+
+    game.participants.tbd = game.participants.tbd.filter(
+      (x) => x["_id"].toString() !== participantObjectId
+    );
+    game.participants.leave = game.participants.leave.filter(
+      (x) => x["_id"].toString() !== participantObjectId
+    );
+  }
+
+  public static getStatusOfParticipant(game: IGame, _id: string): string {
+    if (!game || !_id) {
+      throw new Error("请检查参数");
+    }
+
+    for (const key in game.participants.confirmed) {
+      if (
+        Object.prototype.hasOwnProperty.call(game.participants.confirmed, key)
+      ) {
+        if (
+          game.participants.confirmed[key].some(
+            (x) => x["_id"].toString() === _id
+          )
+        ) {
+          return "confirmed";
+        }
+      }
+    }
+
+    if (game.participants.tbd.some((x) => x["_id"].toString() === _id)) {
+      return "tbd";
+    }
+    if (game.participants.leave.some((x) => x["_id"].toString() === _id)) {
+      return "leave";
+    }
+    return null;
   }
 
   public static getTeamNameByCode(code: string) {
@@ -77,6 +114,15 @@ export class GameService {
       white: "白队",
       blue: "蓝队",
       red: "红队",
+    };
+    return teams[code];
+  }
+
+  public static getStatusNameByCode(code: string) {
+    const teams = {
+      confirmed: "已报名",
+      tbd: "待定",
+      leave: "请假",
     };
     return teams[code];
   }

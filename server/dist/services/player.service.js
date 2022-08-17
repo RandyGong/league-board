@@ -66,7 +66,7 @@ var PlayerService = /** @class */ (function () {
             });
         });
     };
-    PlayerService.recudeParticipationTimes = function (openId) {
+    PlayerService.addParticipationTimes = function (openId, timesDiff) {
         return __awaiter(this, void 0, void 0, function () {
             var player;
             return __generator(this, function (_a) {
@@ -74,13 +74,14 @@ var PlayerService = /** @class */ (function () {
                     case 0: return [4 /*yield*/, player_data_1.PlayerData.findOne({ openId: openId })];
                     case 1:
                         player = _a.sent();
-                        if (!player) return [3 /*break*/, 3];
-                        player.participationTimes -= 1;
+                        if (!player) {
+                            throw new Error("未找到该openId对应的人员");
+                        }
+                        player.participationTimes += timesDiff;
                         return [4 /*yield*/, player.save()];
                     case 2:
                         _a.sent();
-                        _a.label = 3;
-                    case 3: return [2 /*return*/];
+                        return [2 /*return*/, player.participationTimes];
                 }
             });
         });

@@ -4,7 +4,8 @@ import {
   getThursdayOfCurrentWeek,
   getMondayOfNextWeek,
   getWeekday,
-  modal
+  modal,
+  loading
 } from '../../utils/util';
 import {
   request
@@ -29,18 +30,19 @@ Page({
     isUserAlreadyInGame: false,
     playerData: null,
     isSharing: false,
+    exitFromLocationChoose: false,
 
     userInfo: {},
     hasUserInfo: false,
     canIUseGetUserProfile: false,
     timeArray: [
-      ['1时', '2时', '3时', '4时', '5时', '6时', '7时', '8时', '9时', '10时', '11时', '12时', '13时', '14时', '15时', '16时', '17时', '18时', '19时', '20时', '21时', '22时', '23时', '24时'],
+      ['0时', '1时', '2时', '3时', '4时', '5时', '6时', '7时', '8时', '9时', '10时', '11时', '12时', '13时', '14时', '15时', '16时', '17时', '18时', '19时', '20时', '21时', '22时', '23时'],
       ['00分', '15分', '30分', '45分'],
       [' - '],
-      ['1时', '2时', '3时', '4时', '5时', '6时', '7时', '8时', '9时', '10时', '11时', '12时', '13时', '14时', '15时', '16时', '17时', '18时', '19时', '20时', '21时', '22时', '23时', '24时'],
+      ['0时', '1时', '2时', '3时', '4时', '5时', '6时', '7时', '8时', '9时', '10时', '11时', '12时', '13时', '14时', '15时', '16时', '17时', '18时', '19时', '20时', '21时', '22时', '23时'],
       ['00分', '15分', '30分', '45分']
     ],
-    timeIndex: [17, 0, 0, 21, 0],
+    timeIndex: [18, 0, 0, 22, 0],
     gameType: {
       types: ['对内联赛', '友谊赛', '对抗赛'],
       index: 0
@@ -71,14 +73,25 @@ Page({
     });
 
     // await this.getCurrentGame();
-
   },
 
   async onShow() {
+    this.setTabSelection();
+
     const location = chooseLocation.getLocation(); // 如果点击确认选点按钮，则返回选点结果对象，否则返回null
-    console.log({
-      location
+
+    this.setData({
+      isSharing: false
     });
+
+    console.log('this.data.exitFromLocationChoose', this.data.exitFromLocationChoose);
+    // 从地点选择界面退出时不触发reload, 正在创建比赛时不触发reload
+    if (!this.data.exitFromLocationChoose) {
+      await this.getCurrentGame();
+    }
+
+    console.log('location', location);
+
     if (location && location.name) {
       this.setData({
         ['game.location']: location
@@ -86,10 +99,17 @@ Page({
     }
 
     this.setData({
-      isSharing: false
+      exitFromLocationChoose: false
     });
+  },
 
-    await this.getCurrentGame();
+  setTabSelection() {
+    if (typeof this.getTabBar === 'function' &&
+      this.getTabBar()) {
+      this.getTabBar().setData({
+        selected: 1
+      })
+    }
   },
 
   async onPullDownRefresh() {
@@ -191,6 +211,8 @@ Page({
   },
 
   onShareTimeline: function (res) {
+    this.beforeShare();
+
     return {
       title: this.getShareInfo(),
       // imageUrl: `https://iti-images.s3.amazonaws.com/events/897195ed-1495-bc59-11e2-28704a1e2a92.webp`,
@@ -198,6 +220,8 @@ Page({
     };
   },
   onShareAppMessage: function (res) {
+    this.beforeShare();
+    
     return {
       title: this.getShareInfo(),
       // imageUrl: `https://iti-images.s3.amazonaws.com/events/897195ed-1495-bc59-11e2-28704a1e2a92.webp`,
@@ -215,6 +239,9 @@ Page({
     // 为例避免比赛信息改变但还未提交时又更新球员信息，导致比赛信息无法更新
     // 把编辑按钮改成两个，上面那个只负责编辑比赛信息，下面报名情况那个只负责编辑报名信息
     // goingTobeEdit = 'player' | 'game'
+
+    this.resetTimePicker();
+    this.getGameTime(true);
 
     if (this.data.goingTobeEdit === 'game') {
       this.setData({
@@ -247,14 +274,10 @@ Page({
     })
   },
 
-  bindTimeTap(e) {
-    if (!this.data.isGameInfoEditable) return;
-  },
-
   bindMultiPickerChange: function (e) {
-    this.setData({
-      multiIndex: e.detail.value
-    })
+    // this.setData({
+    //   multiIndex: e.detail.value
+    // })
   },
   bindMultiPickerColumnChange: function (e) {
     var data = {
@@ -266,7 +289,19 @@ Page({
     const isSetData = true;
     this.getGameTime(isSetData);
   },
+
+  resetTimePicker() {
+    console.log('this.data.game in resetTimePicker', this.data.game);
+    const timeIndexes = this.data.game ? this.getTimeIndex(this.data.game) : [18, 0, 0, 22, 0];
+    console.log('timeIndexes', timeIndexes);
+    this.setData({
+      timeIndex: timeIndexes
+    })
+  },
   getGameTime: function (setData) {
+    // console.log('this.data.isGameInfoEditable in getGameTime', this.data.isGameInfoEditable);
+    // if (!this.data.isGameInfoEditable) return;
+
     let time = `${this.data.timeArray[0][this.data.timeIndex[0]]}:${this.data.timeArray[1][this.data.timeIndex[1]]}${this.data.timeArray[2][this.data.timeIndex[2]]}${this.data.timeArray[3][this.data.timeIndex[3]]}:${this.data.timeArray[4][this.data.timeIndex[4]]}`;
 
     time = time.replaceAll('时', '').replaceAll('分', '');
@@ -277,8 +312,6 @@ Page({
       });
     }
     return time;
-
-    // return timeArray[0][timeIndex[0]]}}:{{timeArray[1][timeIndex[1]]}}{{timeArray[2][timeIndex[2]]}}{{timeArray[3][timeIndex[3]]}}:{{timeArray[4][timeIndex[4]]
   },
 
   showLocationMap() {
@@ -293,6 +326,12 @@ Page({
         longitude: this.data.game.location.longitude
       });
     }
+
+    // 如果是打开地点选择界面，则关闭后不重新加载current game
+    this.setData({
+      exitFromLocationChoose: true,
+    });
+    console.log('exitFromLocationChoose', this.data.exitFromLocationChoose);
 
     if (this.data.isGameInfoEditable) {
       wx.navigateTo({
@@ -355,7 +394,7 @@ Page({
       ) {
         if (
           currentGame.participants.confirmed[key].some(
-            (x) => !x.isDelegate && x.openId === openId
+            (x) => !x.isDelegate && (x.openId === openId)
           )
         ) {
           isAlreadyJoined = true;
@@ -365,8 +404,8 @@ Page({
 
     // 待定了或者请假了
     if (
-      currentGame.participants.tbd.some((x) => x.openId === openId) ||
-      currentGame.participants.leave.some((x) => x.openId === openId)
+      currentGame.participants.tbd.some((x) => (x.openId === openId) && !x.isDelegate) ||
+      currentGame.participants.leave.some((x) => (x.openId === openId) && !x.isDelegate)
     ) {
       isAlreadyJoined = true;
     }
@@ -374,7 +413,40 @@ Page({
     return isAlreadyJoined;
   },
 
+  getTimeIndex(currentGame) {
+    if (!currentGame) {
+      return [18, 2, 0, 22, 2];
+    }
+    let startHourIndex = 0,
+      startMinIndex = 0,
+      endHourIndex = 0,
+      endMinIndex = 0;
+    const startAndEnd = currentGame.date.timeString.split(' - ');
+    const startHourAndMin = startAndEnd[0].split(':');
+    const endHourAndMin = startAndEnd[1].split(':');
+    startHourIndex = this.data.timeArray[0].indexOf(`${startHourAndMin[0]}时`);
+    startMinIndex = this.data.timeArray[1].indexOf(`${startHourAndMin[1]}分`);
+    endHourIndex = this.data.timeArray[3].indexOf(`${endHourAndMin[0]}时`);
+    endMinIndex = this.data.timeArray[4].indexOf(`${endHourAndMin[1]}分`);
+    console.log(startHourIndex, startMinIndex, endHourIndex, endMinIndex);
+
+    return [startHourIndex, startMinIndex, 0, endHourIndex, endMinIndex]
+  },
+
+  async refresh() {
+    loading('请稍等');
+    await this.getCurrentGame();
+    wx.hideLoading();
+  },
+
   async getCurrentGame() {
+    console.log('进入getCurrentGame');
+
+    this.setData({
+      signUpHidden: true,
+      loginHidden: true,
+    });
+
     const startTime = new Date().getTime();
     let currentGame = await request('GET', `/game/current`, null, false);
     console.log(currentGame);
@@ -397,18 +469,19 @@ Page({
 
       const gameTypeIndex = this.data.gameType.types.indexOf(currentGame.type);
       const gameASideIndex = this.data.aSideType.types.indexOf(currentGame.aSide);
+      const timeIndexes = this.getTimeIndex(currentGame);
 
       setTimeout(() => {
         this.setData({
           game: currentGame,
           hasCurrentGame: true,
           showGameDataView: true,
-          // isEditable: false,
           totalConfirmed,
           isUserAlreadyInGame: isAlreadyIn,
           isLoading: false,
           ['gameType.index']: gameTypeIndex,
           ['aSideType.index']: gameASideIndex,
+          timeIndex: timeIndexes
         });
       }, delay);
     } else {
@@ -416,9 +489,12 @@ Page({
         delay = 2200 - diff;
       }
 
+      this.resetTimePicker();
+      const defaultData = this.getGameDefaultData();
+
       setTimeout(() => {
         this.setData({
-          game: this.getGameDefaultData(),
+          game: defaultData,
           hasCurrentGame: false,
           showGameDataView: false,
           isGameInfoEditable: true,
@@ -432,15 +508,23 @@ Page({
 
   async onAdminSuccess() {
     console.log('onAdminSuccess');
-    toast('操作成功', 'none', 3000, false, true);
+    toast('操作成功!', 'none', 3000, false, true);
 
     await this.getCurrentGame();
     this.setEditable(false, true);
   },
 
   processTime() {
-    const startTime = new Date(this.data.game.date.dateString + ' ' + this.data.game.date.timeString.split(' - ')[0]);
-    const endTime = new Date(this.data.game.date.dateString + ' ' + this.data.game.date.timeString.split(' - ')[1]);
+    console.log('this.data.game.date.timeString', this.data.game.date.timeString);
+    let startString = this.data.game.date.dateString + ' ' + this.data.game.date.timeString.split(' - ')[0];
+    let endString = this.data.game.date.dateString + ' ' + this.data.game.date.timeString.split(' - ')[1];
+
+    const startTime = new Date(startString.replaceAll('-', '/'));
+    const endTime = new Date(endString.replaceAll('-', '/'));
+
+    console.log('processed startTime', startTime);
+    console.log('processed endTime', endTime);
+
     this.setData({
       ['game.date.startTime']: startTime,
       ['game.date.endTime']: endTime,
@@ -470,7 +554,7 @@ Page({
 
   async updateGame() {
     this.processTime();
-    console.log(this.data.game);
+    console.log('update', this.data.game);
 
     const result = await request('PUT', `/game/${this.data.game._id}`, this.data.game);
     console.log(result);
@@ -497,6 +581,7 @@ Page({
       isGameInfoEditable: false,
       isPlayerDataEditable: false
     });
+    this.refresh();
   },
 
   getGameDefaultData() {

@@ -25,6 +25,7 @@ export interface IGame extends mongoose.Document {
     randomMember: string;
   };
   note: string;
+  images: string[];
   participants: {
     confirmed: {
       noTeam: {
@@ -64,6 +65,7 @@ export interface IGame extends mongoose.Document {
       openId: string;
       nickName: string;
       avatarUrl: string;
+      isDelegate: boolean;
       reason: string;
       appliedAt: Date;
     }[];
@@ -71,6 +73,7 @@ export interface IGame extends mongoose.Document {
       openId: string;
       nickName: string;
       avatarUrl: string;
+      isDelegate: boolean;
       reason: string;
       appliedAt: Date;
     }[];
@@ -104,6 +107,7 @@ export const gameSchema = new mongoose.Schema({
     randomMember: String,
   },
   note: String,
+  images: [String],
   participants: {
     confirmed: {
       noTeam: [
@@ -152,6 +156,7 @@ export const gameSchema = new mongoose.Schema({
         openId: String,
         nickName: String,
         avatarUrl: String,
+        isDelegate: Boolean,
         reason: String,
         appliedAt: Date,
       },
@@ -161,6 +166,7 @@ export const gameSchema = new mongoose.Schema({
         openId: String,
         nickName: String,
         avatarUrl: String,
+        isDelegate: Boolean,
         reason: String,
         appliedAt: Date,
       },

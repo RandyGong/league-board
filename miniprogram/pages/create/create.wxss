@@ -8,6 +8,7 @@
   justify-content: space-between;
   box-sizing: border-box;
   overflow-y: auto;
+
 }
 
 .gradient {
@@ -40,7 +41,7 @@
   color: white;
   width: calc(100% - 40rpx);
   position: absolute;
-  bottom: 40rpx;
+  bottom: 190rpx;
 }
 
 
@@ -52,7 +53,7 @@
   width: 160rpx;
   height: 80rpx;
   display: flex;
-  gap: 40rpx;
+  /* gap: 40rpx; */
 }
 
 .game-operation image {
@@ -85,13 +86,14 @@
   border-bottom: 1px solid lightgray;
   display: flex;
   padding: 16rpx 0;
-  gap: 50rpx;
+  /* gap: 50rpx; */
   position: relative;
 }
 
 .field .value {
   color: gray;
   width: 64%;
+  margin-left: 50rpx;
 }
 
 .field picker {
@@ -103,7 +105,7 @@
 }
 
 .sign-up-buttons {
-  gap: 10px;
+  /* gap: 10px; */
 }
 
 .sign-up-buttons>view {
@@ -130,45 +132,7 @@
   padding: 0 40rpx;
 }
 
-@keyframes heartBeat {
-  0% {
-    transform: scale(1);
-  }
-
-  14% {
-    transform: scale(1.3);
-  }
-
-  28% {
-    transform: scale(1);
-  }
-
-  42% {
-    transform: scale(1.3);
-  }
-
-  70% {
-    transform: scale(1);
-  }
-}
-
 @keyframes flyup {
-  /* 0% {
-    transform: translateY(0);
-  }
-  14% {
-    transform: translateY(-2px);
-  }
-  28% {
-    transform: translateY(-4px);
-  }
-  42% {
-    transform: translateY(-6px);
-  }
-  70% {
-    transform: translateY(-8px);
-  } */
-
   from {
     transform: translateY(0);
     opacity: 0;
@@ -178,12 +142,30 @@
     transform: translateY(-20px);
     opacity: 1;
   }
-
 }
 
-.heartBeat {
+.flyup {
   animation-name: flyup;
   animation-duration: 1s;
   animation-timing-function: ease-in-out;
   animation-fill-mode: forwards;
+}
+
+.stamp {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 9;
+  transform: rotateZ(-30deg);
+}
+
+.stamp image {
+  width: 125px;
+  height: 115px;
+}
+
+.stamp .count {
+  font-size: 30px;
+  position: absolute;
+  color: #379866;
 }

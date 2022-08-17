@@ -1,10 +1,7 @@
 <view class="team-name">
-  <image wx:if="{{teamName==='白队'}}" src="../../images/white.png"></image>
-  <image wx:if="{{teamName==='蓝队'}}" src="../../images/blue.png"></image>
-  <image wx:if="{{teamName==='红队'}}" src="../../images/red.png"></image>
-  <image wx:if="{{teamName==='未分组'}}" src="../../images/unknown.png"></image>
-  <text>{{teamName}}</text>
-  <text wx:if="{{teamName && teamParticipants.length}}"> ({{teamParticipants.length}}人)</text>
+  <image wx:if="{{team}}" src="../../images/{{team}}.png"></image>
+  <text>{{teamName[team]}}</text>
+  <text wx:if="{{team && teamParticipants.length}}"> ({{teamParticipants.length}}人)</text>
 </view>
 
 <view class="flex space-around participant participant-row {{index%2===0?status+'-row1':status+'-row2'}}" wx:for="{{teamParticipants}}" wx:key="id" wx:for-index="index" bindtap="showSignOff" data-item="{{item}}">
@@ -15,8 +12,8 @@
   </view>
 
   <view wx:if="{{isEditable}}" class="flex edit-player" style="flex:1">
-    <text wx:if="{{gameType==='对内联赛'&&status==='confirmed'}}" catchtap="movePlayer" data-player="{{item}}">移动</text>
-    <text wx:if="{{status==='confirmed'}}" catchtap="deletePlayer" data-player="{{item}}">移除</text>
+    <text catchtap="movePlayer" data-player="{{item}}" style="margin-right: 6rpx;">移动</text>
+    <text catchtap="deletePlayer" data-player="{{item}}" style="margin-left: 6rpx;">移除</text>
   </view>
 
   <block wx:else>
@@ -28,4 +25,5 @@
   (暂无人员~)
 </view>
 
-<sign-up-modal hidden="{{moveModalHidden}}" isMoveTeam="{{true}}" gameId="{{gameId}}" customTitle="{{moveModalTitle}}" userInfo="{{movePlayer}}" bindOnSignUpSuccess="oMoveSuccess"></sign-up-modal>
+<!-- 移动 -->
+<sign-up-modal hidden="{{moveModalHidden}}" isMoveTeam="{{true}}" gameId="{{gameId}}" gameType="{{gameType}}" team="{{team}}" status="{{status}}" customTitle="{{moveModalTitle}}" userInfo="{{movePlayer}}" bindOnSignUpSuccess="oMoveSuccess"></sign-up-modal>

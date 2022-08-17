@@ -103,13 +103,13 @@
   border: 2px solid rgb(248, 134, 134);
 }
 
-.no-team-border {
+.noTeam-border {
   border: 2px solid rgb(172, 172, 172);
 }
 
 .edit-player {
   flex: 1;
-  gap: 6px;
+  /* gap: 6px; */
 }
 
 .edit-player text {

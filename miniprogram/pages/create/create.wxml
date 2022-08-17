@@ -12,7 +12,7 @@
     <button bindtap="showLogin" class="create-game-btn" style="width: calc(100% - 40rpx)">创建比赛</button>
   </block>
 
-  <view wx:if="{{isLoading}}" class="heartBeat text-center" style="color:white;position: relative;top:15%;">
+  <view wx:if="{{isLoading}}" class="flyup text-center" style="color:white;position: relative;top:15%;">
     <view style="font-size: 42rpx; font-weight: bold;">足球是一种信仰</view>
     <view style="font-size: 26rpx;margin-top: 10px;">如果一个男人，他爱上了足球，那就是一辈子的事</view>
   </view>
@@ -21,188 +21,199 @@
 <login-modal hidden="{{loginHidden}}" bindOnLoginSuccess="showCreateView"></login-modal>
 
 <view wx:if="{{!isLoading && showGameDataView}}" class="create gradient">
-  <block>
-    <view wx:if="{{!hasCurrentGame}}" class="title-wrap">
-      <view class="title">发布比赛</view>
-      <view class="tip">发布一场新比赛，开开心心约球来~</view>
+  <view wx:if="{{!hasCurrentGame}}" class="title-wrap">
+    <view class="title">发布比赛</view>
+    <view class="tip">发布一场新比赛，开开心心约球来~</view>
+  </view>
+  <view wx:else class="{{isSharing?'narrow-wrap':'title-wrap'}}">
+    <view class="title">下一场比赛</view>
+    <view class="tip">还不快报名，还等啥呢，说你呢！</view>
+
+    <view class="game-operation" wx:if="{{!isPlayerDataEditable && !isSharing}}">
+      <image bindtap="showLogin" data-name="game" src="../../images/edit.png"></image>
+
+      <button class="hidden-btn" open-type="share">
+        <image class="img" src="../../images/share.png" style="margin-left: 40rpx;"></image>
+      </button>
     </view>
-    <view wx:else class="{{isSharing?'narrow-wrap':'title-wrap'}}">
-      <view class="title">下一场比赛</view>
-      <view class="tip">还不快报名，还等啥呢，说你呢！</view>
+  </view>
 
-      <view class="game-operation" wx:if="{{!isPlayerDataEditable && !isSharing}}">
-        <image bindtap="showLogin" data-name="game" src="../../images/edit.png"></image>
+  <view class="panel m-t-1">
+    <view wx:if="{{!isSharing}}" class="panel-title m-b-1">比赛信息</view>
 
-        <button class="hidden-btn" open-type="share" bindtap="beforeShare">
-          <image class="img" src="../../images/share.png"></image>
-        </button>
-      </view>
-    </view>
-
-    <view class="panel m-t-1">
-      <view wx:if="{{!isSharing}}" class="panel-title m-b-1">比赛信息</view>
-
-      <view class="field">
-        <text>比赛标题</text>
-        <input disabled="{{!isGameInfoEditable}}" adjust-position fixed type="text" class="value" value="{{game.title}}" data-field="title" bindinput="bindGameInput" />
-      </view>
-
-      <view class="field">
-        <text>比赛日期</text>
-        <picker disabled="{{!isGameInfoEditable}}" mode="date" value="{{game.date.dateString}}" start="2022-06-01" end="2223-12-31" bindchange="bindDateChange">
-          <view class="flex">
-            <input adjust-position fixed type="text" class="value" value="{{game.date.dateString}}" style="width: 95px;" disabled />
-            <text class="value-tip">({{game.date.dateWeekday}})</text>
-          </view>
-        </picker>
-      </view>
-
-      <view class="field">
-        <text>比赛时间</text>
-        <picker disabled="{{!isGameInfoEditable}}" mode="multiSelector" bindtap="getGameTime" bindchange="bindMultiPickerChange" bindcolumnchange="bindMultiPickerColumnChange" value="{{timeIndex}}" range="{{timeArray}}" bindtap="bindTimeTap">
-          <view class="picker">
-            <text class="value">{{game.date.timeString}}</text>
-          </view>
-        </picker>
-      </view>
-
-      <view class="field">
-        <text>比赛性质</text>
-        <picker disabled="{{!isGameInfoEditable}}" value="{{gameType.index}}" range="{{gameType.types}}" bindchange="bindGameTypeChange">
-          <view class="picker">
-            <text class="value">{{gameType.types[gameType.index]}}</text>
-          </view>
-        </picker>
-      </view>
-
-      <view class="field">
-        <text>比赛场地</text>
-        <input adjust-position fixed type="text" class="value" value="{{game.location.name}}" bindtap="showLocationMap" disabled />
-        <image src="../../images/map.png" style="position:absolute;right:0;top:8rpx; width:30px;height: 32px;" bindtap="showLocationMap"></image>
-      </view>
-
-      <view class="field">
-        <text>球场人制</text>
-        <picker disabled="{{!isGameInfoEditable}}" value="{{aSideType.index}}" range="{{aSideType.types}}" bindchange="bindASideTypeChange">
-          <view class="picker">
-            <text class="value">{{aSideType.types[aSideType.index]}}</text>
-          </view>
-        </picker>
-      </view>
-
-      <view class="field">
-        <text>计划人数</text>
-        <input disabled="{{!isGameInfoEditable}}" adjust-position fixed class="value" value="{{game.plannedNumberOfPeople}}" data-field="plannedNumberOfPeople" bindinput="bindGameInput" />
-      </view>
+    <view class="field">
+      <text>比赛标题</text>
+      <input disabled="{{!isGameInfoEditable}}" adjust-position fixed type="text" class="value" value="{{game.title}}" data-field="title" bindinput="bindGameInput" />
     </view>
 
-    <view class="panel m-t-1">
-      <view class="panel-title">比赛费用</view>
-
-      <view class="field m-t-1">
-        <text>固定铁腿</text>
-        <input disabled="{{!isGameInfoEditable}}" adjust-position fixed class="value" value="{{game.fee.fixedMember}}" data-field="fee.fixedMember" bindinput="bindGameInput" />
-      </view>
-
-      <view class="field">
-        <text>随机散客</text>
-        <input disabled="{{!isGameInfoEditable}}" adjust-position fixed class="value" value="{{game.fee.randomMember}}" data-field="fee.randomMember" bindinput="bindGameInput" />
-      </view>
-    </view>
-
-    <view class="panel m-t-1">
-      <view class="panel-title">注意事项</view>
-
-      <view class="field m-t-1">
-        <textarea disabled="{{!isGameInfoEditable}}" always-embed adjust-position="{{false}}" class="value" maxlength="300" value="{{game.note}}" data-field="note" bindinput="bindGameInput" style="height: 48px;" />
-      </view>
-    </view>
-
-    <view wx:if="{{!hasCurrentGame}}" class="m-t-1">
-      <button bindtap="publish" class="btn-blue" style="width: 100%">发布比赛</button>
-    </view>
-    <view wx:else class="m-t-1">
-      <view wx:if="{{isGameInfoEditable}}" class="flex" style="gap:20rpx">
-        <button class="btn-blue" bindtap="updateGame">提交更新</button>
-        <button class="btn-red" bindtap="deleteGame">删除</button>
-        <button class="btn-white" bindtap="cancelEdit">取消</button>
-      </view>
-      <view wx:if="{{!isGameInfoEditable && !isPlayerDataEditable}}" class="flex space-around sign-up-buttons">
-        <view wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile" data-status="tbd" class="{{isUserAlreadyInGame?'already-in':''}}" style="background: rgb(253, 208, 123);">待定</view>
-        <view wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile" data-status="leave" class="{{isUserAlreadyInGame?'already-in':''}}" style="background: rgb(255, 176, 190)">请假</view>
-        <view wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile" data-status="confirmed" data-delegate="true" style="background: rgb(155, 199, 155)">代报名</view>
-        <view wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile" data-status="confirmed" class="{{isUserAlreadyInGame?'already-in':''}}" style="background: lightskyblue">报名</view>
-      </view>
-    </view>
-
-    <sign-up-modal hidden="{{signUpHidden}}" userInfo="{{userInfo}}" status="{{signUpStatus}}" gameType="{{game.type}}" isDelegate="{{isDelegate}}" gameId="{{game._id}}" bindOnSignUpSuccess="getCurrentGame"></sign-up-modal>
-
-    <view wx:if="{{hasCurrentGame}}" class="panel m-t-1 participant-gradient">
-      <view class="panel-title">报名情况
-        <view style="float: right;">
-          <image wx:if="{{!isGameInfoEditable&&!isPlayerDataEditable}}" bindtap="showLogin" src="../../images/edit-blue.png" data-name="player" style="width: 50rpx;height: 50rpx"></image>
-          <text wx:if="{{isPlayerDataEditable}}" bindtap="cancelEdit" class="link-btn">取消编辑</text>
+    <view class="field">
+      <text>比赛日期</text>
+      <picker disabled="{{!isGameInfoEditable}}" mode="date" value="{{game.date.dateString}}" start="2022-06-01" end="2223-12-31" bindchange="bindDateChange">
+        <view class="flex">
+          <input adjust-position fixed type="text" class="value" value="{{game.date.dateString}}" style="width: 95px;" disabled />
+          <text class="value-tip">({{game.date.dateWeekday}})</text>
         </view>
+      </picker>
+    </view>
+
+    <view class="field">
+      <text>比赛时间</text>
+      <picker disabled="{{!isGameInfoEditable}}" mode="multiSelector" bindchange="bindMultiPickerChange" bindcolumnchange="bindMultiPickerColumnChange" value="{{timeIndex}}" range="{{timeArray}}">
+        <view class="picker">
+          <text class="value">{{game.date.timeString}}</text>
+        </view>
+      </picker>
+    </view>
+
+    <view class="field">
+      <text>比赛性质</text>
+      <picker disabled="{{!isGameInfoEditable}}" value="{{gameType.index}}" range="{{gameType.types}}" bindchange="bindGameTypeChange">
+        <view class="picker">
+          <text class="value">{{gameType.types[gameType.index]}}</text>
+        </view>
+      </picker>
+    </view>
+
+    <view class="field">
+      <text>比赛场地</text>
+      <input adjust-position fixed type="text" class="value" value="{{game.location.name}}" bindtap="showLocationMap" disabled />
+      <image src="../../images/map.png" style="position:absolute;right:0;top:8rpx; width:30px;height: 32px;" bindtap="showLocationMap"></image>
+    </view>
+
+    <view class="field">
+      <text>球场人制</text>
+      <picker disabled="{{!isGameInfoEditable}}" value="{{aSideType.index}}" range="{{aSideType.types}}" bindchange="bindASideTypeChange">
+        <view class="picker">
+          <text class="value">{{aSideType.types[aSideType.index]}}</text>
+        </view>
+      </picker>
+    </view>
+
+    <view class="field">
+      <text>计划人数</text>
+      <input disabled="{{!isGameInfoEditable}}" adjust-position fixed class="value" value="{{game.plannedNumberOfPeople}}" data-field="plannedNumberOfPeople" bindinput="bindGameInput" />
+    </view>
+  </view>
+
+  <view class="panel m-t-1">
+    <view class="panel-title">比赛费用</view>
+
+    <view class="field m-t-1">
+      <text>固定铁腿</text>
+      <input disabled="{{!isGameInfoEditable}}" adjust-position fixed class="value" value="{{game.fee.fixedMember}}" data-field="fee.fixedMember" bindinput="bindGameInput" />
+    </view>
+
+    <view class="field">
+      <text>随机散客</text>
+      <input disabled="{{!isGameInfoEditable}}" adjust-position fixed class="value" value="{{game.fee.randomMember}}" data-field="fee.randomMember" bindinput="bindGameInput" />
+    </view>
+  </view>
+
+  <view class="panel m-t-1">
+    <view class="panel-title">注意事项</view>
+
+    <view class="field m-t-1">
+      <textarea disabled="{{!isGameInfoEditable}}" always-embed adjust-position="{{false}}" class="value" maxlength="300" value="{{game.note}}" data-field="note" bindinput="bindGameInput" style="height: 48px;margin-left: 0;" />
+    </view>
+  </view>
+
+  <view wx:if="{{!hasCurrentGame}}" class="m-t-1">
+    <button bindtap="publish" class="btn-blue" style="width: 100%">发布比赛</button>
+  </view>
+  <view wx:else class="m-t-1">
+    <view wx:if="{{isGameInfoEditable}}" class="flex">
+      <button class="btn-blue" bindtap="updateGame" style="margin-right: 10rpx;">更新</button>
+      <button class="btn-red" bindtap="deleteGame" style="margin:0 10rpx;">删除</button>
+      <button class="btn-white" bindtap="cancelEdit" style="margin-left: 10rpx;">取消</button>
+    </view>
+    <view wx:if="{{!isGameInfoEditable && !isPlayerDataEditable}}" class="flex space-around sign-up-buttons">
+      <view wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile" data-status="tbd" class="{{isUserAlreadyInGame?'already-in':''}}" style="background: rgb(253, 208, 123); margin-right: 10rpx;">待定</view>
+      <view wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile" data-status="leave" class="{{isUserAlreadyInGame?'already-in':''}}" style="background: rgb(255, 176, 190); margin: 0 10rpx;">请假</view>
+      <view wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile" data-status="confirmed" data-delegate="true" style="background: rgb(155, 199, 155); margin: 0 10rpx;">代报名</view>
+      <view wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile" data-status="confirmed" class="{{isUserAlreadyInGame?'already-in':''}}" style="background: lightskyblue; margin-left: 10rpx;">报名</view>
+    </view>
+  </view>
+
+  <sign-up-modal hidden="{{signUpHidden}}" userInfo="{{userInfo}}" status="{{signUpStatus}}" gameType="{{game.type}}" isDelegate="{{isDelegate}}" gameId="{{game._id}}" bindOnSignUpSuccess="getCurrentGame"></sign-up-modal>
+
+  <view wx:if="{{hasCurrentGame}}" class="panel m-t-1 participant-gradient">
+    <view class="panel-title">报名情况
+      <view style="float: right;">
+        <image wx:if="{{!isGameInfoEditable&&!isPlayerDataEditable}}" bindtap="showLogin" src="../../images/edit-blue.png" data-name="player" style="width: 50rpx;height: 50rpx"></image>
+        <image wx:if="{{!isGameInfoEditable&&!isPlayerDataEditable}}" bindtap="refresh" src="../../images/refresh.png" data-name="player" style="width: 50rpx;height: 46rpx;margin-left: 30rpx;"></image>
+        <text wx:if="{{isPlayerDataEditable}}" bindtap="cancelEdit" class="link-btn">取消编辑</text>
+      </view>
+    </view>
+
+    <view>
+      <view class="panel-title flex m-t-2">
+        <view class="title-dot confirmed-dot"></view>已报名 (共{{totalConfirmed}}人)
       </view>
 
-      <view>
-        <view class="panel-title flex m-t-2">
-          <view class="title-dot confirmed-dot"></view>已报名 (共{{totalConfirmed}}人)
-        </view>
-
-        <view class="m-t-2">
-          <view class="flex space-around participant-row m-b-1">
-            <text class="bold text-center" style="flex:3">人员</text>
-            <text class="bold text-center" style="flex:2">已参与场次</text>
-          </view>
-
-          <view wx:if="{{game.type==='对内联赛'}}">
-            <team-participation teamName="白队" gameId="{{game._id}}" gameType="{{game.type}}" status="confirmed" teamParticipants="{{game.participants.confirmed.white}}" bindOnSignOfSuccess="getCurrentGame" isEditable="{{isPlayerDataEditable}}" bindOnAdminSuccess="onAdminSuccess"></team-participation>
-            <team-participation teamName="蓝队" gameId="{{game._id}}" gameType="{{game.type}}" status="confirmed" teamParticipants="{{game.participants.confirmed.blue}}" bindOnSignOfSuccess="getCurrentGame" isEditable="{{isPlayerDataEditable}}" bindOnAdminSuccess="onAdminSuccess"></team-participation>
-            <team-participation teamName="红队" gameId="{{game._id}}" gameType="{{game.type}}" status="confirmed" teamParticipants="{{game.participants.confirmed.red}}" bindOnSignOfSuccess="getCurrentGame" isEditable="{{isPlayerDataEditable}}" bindOnAdminSuccess="onAdminSuccess"></team-participation>
-            <team-participation teamName="未分组" gameId="{{game._id}}" gameType="{{game.type}}" status="confirmed" teamParticipants="{{game.participants.confirmed.noTeam}}" bindOnSignOfSuccess="getCurrentGame" isEditable="{{isPlayerDataEditable}}" bindOnAdminSuccess="onAdminSuccess"></team-participation>
-          </view>
-
-          <view wx:else>
-            <team-participation teamName="" gameId="{{game._id}}" gameType="{{game.type}}" status="confirmed" teamParticipants="{{game.participants.confirmed.noTeam}}" bindOnSignOfSuccess="getCurrentGame" isEditable="{{isPlayerDataEditable}}" bindOnAdminSuccess="onAdminSuccess"></team-participation>
-          </view>
-
-        </view>
-      </view>
-
-      <view>
-        <view class="panel-title flex m-t-3">
-          <view class="title-dot tbd-dot"></view>待定 (共{{game.participants.tbd.length}}人)
+      <view class="m-t-2">
+        <view class="flex space-around participant-row m-b-1">
+          <text class="bold text-center" style="flex:3">人员</text>
+          <text class="bold text-center" style="flex:2">已参与场次</text>
         </view>
 
-
-        <view class="m-t-2">
-          <view class="flex space-around participant-row m-b-1">
-            <text class="bold text-center" style="flex:3">人员</text>
-            <text class="bold text-center" style="flex:2">事由</text>
-          </view>
-
-          <team-participation teamName="" gameId="{{game._id}}" gameType="{{game.type}}" status="tbd" teamParticipants="{{game.participants.tbd}}" bindOnSignOfSuccess="getCurrentGame" isEditable="{{isPlayerDataEditable}}" bindOnAdminSuccess="onAdminSuccess"></team-participation>
-
+        <view wx:if="{{game.type==='对内联赛'}}">
+          <team-participation team="white" gameId="{{game._id}}" gameType="{{game.type}}" status="confirmed" teamParticipants="{{game.participants.confirmed.white}}" bindOnSignOfSuccess="getCurrentGame" isEditable="{{isPlayerDataEditable}}" bindOnAdminSuccess="onAdminSuccess"></team-participation>
+          <team-participation team="blue" gameId="{{game._id}}" gameType="{{game.type}}" status="confirmed" teamParticipants="{{game.participants.confirmed.blue}}" bindOnSignOfSuccess="getCurrentGame" isEditable="{{isPlayerDataEditable}}" bindOnAdminSuccess="onAdminSuccess"></team-participation>
+          <team-participation team="red" gameId="{{game._id}}" gameType="{{game.type}}" status="confirmed" teamParticipants="{{game.participants.confirmed.red}}" bindOnSignOfSuccess="getCurrentGame" isEditable="{{isPlayerDataEditable}}" bindOnAdminSuccess="onAdminSuccess"></team-participation>
+          <team-participation team="noTeam" gameId="{{game._id}}" gameType="{{game.type}}" status="confirmed" teamParticipants="{{game.participants.confirmed.noTeam}}" bindOnSignOfSuccess="getCurrentGame" isEditable="{{isPlayerDataEditable}}" bindOnAdminSuccess="onAdminSuccess"></team-participation>
         </view>
+
+        <view wx:else>
+          <team-participation teamName="" gameId="{{game._id}}" gameType="{{game.type}}" status="confirmed" teamParticipants="{{game.participants.confirmed.noTeam}}" bindOnSignOfSuccess="getCurrentGame" isEditable="{{isPlayerDataEditable}}" bindOnAdminSuccess="onAdminSuccess"></team-participation>
+        </view>
+
       </view>
-
-      <view>
-        <view class="panel-title flex m-t-3">
-          <view class="title-dot leave-dot"></view>请假 (共{{game.participants.leave.length}}人)
-        </view>
-
-        <view class="m-t-2">
-          <view class="flex space-around participant-row m-b-1">
-            <text class="bold text-center" style="flex:3">人员</text>
-            <text class="bold text-center" style="flex:2">事由</text>
-          </view>
-
-          <team-participation teamName="" gameId="{{game._id}}" gameType="{{game.type}}" status="leave" teamParticipants="{{game.participants.leave}}" bindOnSignOfSuccess="getCurrentGame" isEditable="{{isPlayerDataEditable}}"></team-participation>
-        </view>
-      </view>
-
     </view>
-  </block>
 
+    <view>
+      <view class="panel-title flex m-t-3">
+        <view class="title-dot tbd-dot"></view>待定 (共{{game.participants.tbd.length}}人)
+      </view>
+
+
+      <view class="m-t-2">
+        <view class="flex space-around participant-row m-b-1">
+          <text class="bold text-center" style="flex:3">人员</text>
+          <text class="bold text-center" style="flex:2">事由</text>
+        </view>
+
+        <team-participation teamName="" gameId="{{game._id}}" gameType="{{game.type}}" status="tbd" teamParticipants="{{game.participants.tbd}}" bindOnSignOfSuccess="getCurrentGame" isEditable="{{isPlayerDataEditable}}" bindOnAdminSuccess="onAdminSuccess"></team-participation>
+
+      </view>
+    </view>
+
+    <view>
+      <view class="panel-title flex m-t-3">
+        <view class="title-dot leave-dot"></view>请假 (共{{game.participants.leave.length}}人)
+      </view>
+
+      <view class="m-t-2">
+        <view class="flex space-around participant-row m-b-1">
+          <text class="bold text-center" style="flex:3">人员</text>
+          <text class="bold text-center" style="flex:2">事由</text>
+        </view>
+
+        <team-participation teamName="" gameId="{{game._id}}" gameType="{{game.type}}" status="leave" teamParticipants="{{game.participants.leave}}" bindOnSignOfSuccess="getCurrentGame" isEditable="{{isPlayerDataEditable}}" bindOnAdminSuccess="onAdminSuccess"></team-participation>
+      </view>
+    </view>
+
+  </view>
+
+  <view style="height: 152rpx;width: 100%;"></view>
+
+</view>
+
+<view wx:if="{{isSharing}}" class="stamp">
+  <view wx:if="{{totalConfirmed>=6}}">
+    <image src="../../images/count.png"></image>
+    <text class="count" style="{{totalConfirmed>=10?'right:34px; top:35px':'right:42px; top:35px'}}">{{totalConfirmed}}</text>
+  </view>
+  <view wx:else>
+    <image src="../../images/waiting.png" style="width: 250rpx;height:230rpx;"></image>
+  </view>
 </view>

@@ -6,27 +6,64 @@ Page({
   data: {
     gameList: [],
     isLoading: true,
+    refreshTriggered: false
   },
 
   async onLoad() {
     await this.getGameList();
   },
 
+  onShow() {
+    if (typeof this.getTabBar === 'function' &&
+      this.getTabBar()) {
+      this.getTabBar().setData({
+        selected: 0
+      })
+    }
+  },
+
   async onPullDownRefresh() {
     console.log('onPullDownRefresh');
+    this.setData({
+      refreshTriggered: true,
+    })
     wx.showNavigationBarLoading();
     await this.getGameList();
     wx.hideNavigationBarLoading();
     wx.stopPullDownRefresh();
+    this.setData({
+      refreshTriggered: false,
+    })
   },
 
-  showMore(e) {
+  onRestore(e) {
+    console.log('onRestore:', e)
+  },
+
+  onAbort(e) {
+    console.log('onAbort', e)
+  },
+
+  async showMore(e) {
     let gameIndex = e.currentTarget.dataset.index;
     let currentStatus = this.data.gameList[gameIndex].isShowMore;
-    const field = `gameList[${gameIndex}].isShowMore`;
+    let isDetailsLoaded = this.data.gameList[gameIndex].isDetailsLoaded;
+    let gameId = this.data.gameList[gameIndex]._id;
+    const field = `gameList[${gameIndex}].`;
+
+    if (!isDetailsLoaded) {
+      const details = await request('GET', '/game/' + gameId);
+      console.log('details', details);
+
+      this.setData({
+        [field + 'isDetailsLoaded']: true,
+        [field + 'participants']: details.participants,
+        [field + 'images']: details.images
+      });
+    }
 
     this.setData({
-      [field]: !currentStatus
+      [field + 'isShowMore']: !currentStatus
     })
   },
 
@@ -35,12 +72,23 @@ Page({
     console.log('list', list);
     for (let item of list) {
       item['isShowMore'] = false;
+      item['isDetailsLoaded'] = false;
     }
 
     this.setData({
       gameList: list,
       isLoading: false,
     });
+  },
+
+  previewImages(event) {
+    const currentUrl = event.currentTarget.dataset.src;
+    const images = event.currentTarget.dataset.images;
+   
+    wx.previewImage({
+      current: currentUrl,
+      urls: images
+    })
   },
 
   showGame(e) {

@@ -14,6 +14,7 @@ const formatDate = dateValue => {
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
   const day = date.getDate();
+  console.log('day', day);
   return `${year}-${makeTwoDigits(month)}-${makeTwoDigits(day)}`;
 }
 
@@ -27,14 +28,14 @@ const makeTwoDigits = dateValue => {
 const getMondayOfNextWeek = () => {
   const today = new Date();
   const first = today.getDate() - today.getDay() + 1;
-  const fifth = first + 7;
+  const fifth = first + 6;
   const friday = new Date(today.setDate(fifth));
   return friday;
 }
 const getThursdayOfCurrentWeek = () => {
   const today = new Date();
   const first = today.getDate() - today.getDay() + 1;
-  const fifth = first + 3;
+  const fifth = first + 2;
   const friday = new Date(today.setDate(fifth));
   return friday;
 }
@@ -42,6 +43,7 @@ const getThursdayOfCurrentWeek = () => {
 const getWeekday = dateValue => {
   const date = new Date(dateValue);
   const day = date.getDay();
+  console.log('day in getWeekday', day);
   return ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][day];
 }
 

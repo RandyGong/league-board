@@ -21,7 +21,7 @@ function request(method, url, data, showLoading = true) {
         if (result.statusCode === 200) {
           resolve(result.data);
         } else {
-          const msg = result.data.msg || '请求异常';
+          const msg = result.data.msg || '请求异常，请联系那个帅帅的管理员';
           util.toast(msg, 'none', 3000, false, true);
         }
         // else if (result.data.code == 201)

@@ -1,0 +1,219 @@
+/*重新样式*/
+.tab-bar {
+
+  /* position: fixed; */
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  box-shadow: 0px -2px 10px 0px rgba(0, 0, 0, 0.05);
+  box-sizing: content-box;
+  height: 150rpx;
+}
+
+.tab-bar-border {
+  background-color: rgba(0, 0, 0, 0.33);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 1px;
+  transform: scaleY(0.5);
+}
+
+.tab-bar-item {
+  flex: auto;
+  text-align: center;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  flex-direction: column;
+  background: #fff;
+  height: 140rpx;
+  padding-top: 12rpx;
+}
+
+.tab-bar-item.diy {
+  margin-top: 0 !important;
+  background: transparent;
+  position: relative;
+  flex: inherit;
+  width: 110rpx;
+  padding-top: 0;
+  height: 150rpx;
+
+  border-radius: 50%;
+}
+
+.tab-bar-item image {
+  width: 68rpx;
+  height: 68rpx;
+  overflow: initial;
+
+  border-radius: 50%;
+}
+
+.tab-bar-item view {
+  font-size: 24rpx;
+}
+
+/* .tab-bar-item image.diy {
+  position: absolute;
+  bottom: 75rpx;
+  z-index: 100;
+  transition: 0.2s linear all;
+} */
+
+.tab-bar-item image.diy {
+  position: absolute;
+  width: 90rpx;
+  height: 90rpx;
+  bottom: 80rpx;
+  z-index: 100;
+}
+
+.tab-bar-item view.diy {
+  background: #fff;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  margin-top: 0;
+  line-height: 194rpx;
+}
+
+.flame-holder {
+  background: transparent;
+  width: 90rpx;
+  height: 90rpx;
+  z-index: 10;
+  position: absolute;
+  bottom: 80rpx;
+  border-radius: 999px;
+}
+
+@keyframes heartBeat {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.3);
+  }
+}
+
+@keyframes spin2 {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.heartBeat {
+  animation-name: heartBeat;
+  animation-duration: 0.3s;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+.spin {
+  animation-name: spin2;
+  animation-duration: 0.2s;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+.blink-bg {
+  background-image: linear-gradient(135deg, rgba(105, 105, 105, 0.15) 25%, transparent 25%);
+  animation: skeleton-stripes 0.4s linear forwards;
+  background-size: 80rpx 40rpx;
+}
+
+@keyframes skeleton-stripes {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 80rpx 0;
+  }
+}
+
+
+.holder::before {
+  content: '';
+  position: absolute;
+  z-index: -9;
+  left: 0;
+  width: 90rpx;
+  height: 90rpx;
+  background: #ff826e;
+  border-radius: 100%;
+  -webkit-animation: flare 1000ms ease-out forwards;
+  animation: flare 1000ms ease-out forwards;
+}
+
+.holder::after {
+  content: '';
+  position: absolute;
+  z-index: -9;
+  top: 0;
+  right: 0;
+  width: 90rpx;
+  height: 90rpx;
+  background: #ffe66e;
+  border-radius: 100%;
+  -webkit-animation: flare 1000ms ease-out forwards;
+  animation: flare 1000ms ease-out forwards;
+}
+
+@-webkit-keyframes flare {
+  100% {
+    -webkit-transform: translateY(-45rpx) scale(1.5);
+    transform: translateY(-45rpx) scale(1.5);
+    -webkit-filter: blur(10px);
+    filter: blur(10px);
+    opacity: 0;
+  }
+}
+
+@keyframes flare {
+  100% {
+    -webkit-transform: translateY(-45rpx) scale(1.5);
+    transform: translateY(-45rpx) scale(1.5);
+    -webkit-filter: blur(10px);
+    filter: blur(10px);
+    opacity: 0;
+  }
+}
+
+@-webkit-keyframes burn {
+  0% {
+    color: #ff826e;
+    background: #ffe66e;
+    box-shadow: 0 0 5px 0 #c8000a, 0 0 5px 0 rgba(230, 30, 10, 0.8), 0 0 5px 0 rgba(230, 230, 10, 0.6);
+  }
+
+  100% {
+    color: black;
+    background: white;
+    box-shadow: 0 -35px 40px 30px rgba(255, 130, 10, 0), 0 -30px 30px 10px rgba(230, 30, 10, 0), 0 -20px 10px 0 rgba(255, 255, 10, 0);
+  }
+}
+
+@keyframes burn {
+  0% {
+    color: #ff826e;
+    background: #ffe66e;
+    box-shadow: 0 0 5px 0 #c8000a, 0 0 5px 0 rgba(230, 30, 10, 0.8), 0 0 5px 0 rgba(230, 230, 10, 0.6);
+  }
+
+  100% {
+    color: black;
+    background: white;
+    box-shadow: 0 -35px 40px 30px rgba(255, 130, 10, 0), 0 -30px 30px 10px rgba(230, 30, 10, 0), 0 -20px 10px 0 rgba(255, 255, 10, 0);
+  }
+}
+
+.holder {
+  -webkit-animation: burn 1000ms ease-out forwards;
+  animation: burn 1000ms ease-out forwards;
+}

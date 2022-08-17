@@ -9,24 +9,6 @@ import { PlayerService } from "../services/player.service";
 var express = require("express");
 var router = toAsyncRouter(express.Router());
 
-router.get("/", async (req, res, next) => {
-  let allGames = await Game.find(
-    {},
-    "title date type aSide fee.randomMember location.name"
-  ).sort({ "date.startTime": -1 });
-  if (allGames.length) {
-    if (allGames[0].date.endTime.getTime() > new Date().getTime()) {
-      allGames = allGames.slice(1);
-    }
-  }
-  res.send(allGames);
-});
-
-router.get("/:_id", async (req, res, next) => {
-  const game = await Game.findById(req.params._id);
-  res.send(game);
-});
-
 router.get("/current", async (req, res, next) => {
   const latestGame = await Game.findOne({}).sort({ "date.startTime": -1 });
   if (!latestGame) {
@@ -56,6 +38,24 @@ router.get("/current", async (req, res, next) => {
     return res.json(latestGame);
   }
   res.send(null);
+});
+
+router.get("/:_id", async (req, res, next) => {
+  const game = await Game.findById(req.params._id);
+  res.send(game);
+});
+
+router.get("/", async (req, res, next) => {
+  let allGames = await Game.find(
+    {},
+    "title date type aSide fee.randomMember location.name"
+  ).sort({ "date.startTime": -1 });
+  if (allGames.length) {
+    if (allGames[0].date.endTime.getTime() > new Date().getTime()) {
+      allGames = allGames.slice(1);
+    }
+  }
+  res.send(allGames);
 });
 
 router.post("/", async (req, res, next) => {
@@ -91,15 +91,7 @@ router.put("/:id/sign-off", async (req, res, next) => {
     throw new Error("未找到所指的的比赛!");
   }
 
-  await GameService.moveOutFromConfirmed(game, participantObjectId, true);
-
-  game.participants.tbd = game.participants.tbd.filter(
-    (x) => x["_id"].toString() !== participantObjectId
-  );
-  game.participants.leave = game.participants.leave.filter(
-    (x) => x["_id"].toString() !== participantObjectId
-  );
-
+  await GameService.moveOutFromAllStatus(game, participantObjectId, true);
   await game.save();
 
   res.end();
@@ -110,7 +102,7 @@ router.put("/:id/sign-up", async (req, res, next) => {
 
   let game = await Game.findById(req.params.id);
   if (!game) {
-    throw new Error("当前比赛未找到!");
+    throw new Error("未找到当前比赛!");
   }
 
   const dataToSave = {
@@ -158,32 +150,55 @@ router.put("/:id/sign-up", async (req, res, next) => {
   res.end();
 });
 
-router.put("/:id/move-team", async (req, res, next) => {
-  const { moveToTeam, participant } = req.body;
+router.put("/:id/move", async (req, res, next) => {
+  const { moveToTeam, participant, toStatus } = req.body;
+
   let game = await Game.findById(req.params.id);
   if (!game) {
     throw new Error("未找到所指的的比赛!");
   }
 
-  await GameService.moveOutFromConfirmed(game, participant._id, false);
+  const fromStatus = GameService.getStatusOfParticipant(game, participant._id);
+  const correctStatus = ["confirmed", "tbd", "leave"];
   if (
-    Object.prototype.hasOwnProperty.call(
-      game.participants.confirmed,
-      moveToTeam
-    )
+    !correctStatus.includes(fromStatus) ||
+    !correctStatus.includes(toStatus)
   ) {
+    throw new Error("请检查status");
+  }
+
+  const tbdOrLeave = ["tbd", "leave"];
+  const isReduceParticipationTimes =
+    fromStatus === "confirmed" &&
+    tbdOrLeave.includes(toStatus) &&
+    !participant.isDelegate;
+  await GameService.moveOutFromAllStatus(
+    game,
+    participant._id,
+    isReduceParticipationTimes
+  );
+
+  // 移动到tbd或leave
+  if (tbdOrLeave.includes(toStatus)) {
+    delete participant.participationTimes;
+    game.participants[toStatus].push(participant);
+    await game.save();
+  } else {
     if (
-      game.participants.confirmed[moveToTeam].some(
-        (x) => x._id.toString() === participant._id
+      !Object.prototype.hasOwnProperty.call(
+        game.participants.confirmed,
+        moveToTeam
       )
     ) {
-      throw new Error(
-        `该球员已经在${GameService.getTeamNameByCode(moveToTeam)}了`
-      );
+      throw new Error("请检查team");
     }
 
-    // delete participant._id;
+    if (tbdOrLeave.includes(fromStatus) && !participant.isDelegate) {
+      participant["participationTimes"] =
+        await PlayerService.addParticipationTimes(participant.openId, 1);
+    }
     game.participants.confirmed[moveToTeam].push(participant);
+
     await game.save();
   }
 

@@ -9,12 +9,13 @@ page {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: 110rpx 0;
+  padding: 80rpx 0 250rpx 0;
   box-sizing: border-box;
   overflow-y: auto;
 
-  background-image: url("https://iti-images.s3.amazonaws.com/events/1888f507-b2dc-9813-500c-f25eb1bf5b61.webp");
-  background-size: contain;
+  /* background-image: url("https://iti-images.s3.amazonaws.com/events/1888f507-b2dc-9813-500c-f25eb1bf5b61.webp"); */
+  background-image: url('https://img.ixintu.com/download/jpg/202004/a0f647ecbc3752a643bf8b8b3af10d0a_800_1199.jpg');
+  background-size: cover;
   text-align: center;
   color: white;
 }

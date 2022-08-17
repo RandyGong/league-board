@@ -1,32 +1,17 @@
-<view class="list-bg">
+<!-- <view class="list-bg"></view> -->
+<scroll-view class="list-bg" scroll-y="true" refresher-enabled enable-back-to-top enhanced bounces bindrefresherrefresh="onPullDownRefresh" refresher-triggered="{{refreshTriggered}}" bindrefresherrestore="onRestore" bindrefresherabort="onAbort">
   <view class="title-wrap m-b-1">
     <view class="title">往期比赛</view>
     <view class="tip">没有球踢的时候，回顾一下往期比赛吧~</view>
   </view>
 
   <view wx:if="{{isLoading}}">
-    <view class="panel">
-      <view style="width: 50%;;height: 40rpx;background: #eee;"></view>
-      <view style="width: 100%;;height: 38rpx;background: #eee;margin-top: 10rpx;"></view>
-      <view style="width: 100%;;height: 38rpx;background: #eee;margin-top: 10rpx;"></view>
-      <view style="width: 100%;;height: 38rpx;background: #eee;margin-top: 10rpx;"></view>
-      <view style="width: 100%;;height: 38rpx;background: #eee;margin-top: 10rpx;"></view>
-    </view>
-
-    <view class="panel m-t-1">
-      <view style="width: 50%;;height: 40rpx;background: #eee;"></view>
-      <view style="width: 100%;;height: 38rpx;background: #eee;margin-top: 10rpx;"></view>
-      <view style="width: 100%;;height: 38rpx;background: #eee;margin-top: 10rpx;"></view>
-      <view style="width: 100%;;height: 38rpx;background: #eee;margin-top: 10rpx;"></view>
-      <view style="width: 100%;;height: 38rpx;background: #eee;margin-top: 10rpx;"></view>
-    </view>
-
-    <view class="panel m-t-1">
-      <view style="width: 50%;;height: 40rpx;background: #eee;"></view>
-      <view style="width: 100%;;height: 38rpx;background: #eee;margin-top: 10rpx;"></view>
-      <view style="width: 100%;;height: 38rpx;background: #eee;margin-top: 10rpx;"></view>
-      <view style="width: 100%;;height: 38rpx;background: #eee;margin-top: 10rpx;"></view>
-      <view style="width: 100%;;height: 38rpx;background: #eee;margin-top: 10rpx;"></view>
+    <view class="panel m-t-1" wx:for="{{[0,1,2]}}" wx:key="{{item}}">
+      <view class="block block-1"></view>
+      <view class="block block-2"></view>
+      <view class="block block-2"></view>
+      <view class="block block-2"></view>
+      <view class="block block-2"></view>
     </view>
   </view>
 
@@ -101,7 +86,7 @@
         <view wx:if="{{!item.participants.confirmed.red.length}}" class="player-data">(无人)</view>
 
         <view class="team-name">
-          <image src="../../images/unknown.png"></image><text> 未分组</text>
+          <image src="../../images/noTeam.png"></image><text> 未分组</text>
         </view>
       </block>
 
@@ -137,10 +122,28 @@
           </view>
         </view>
         <view wx:if="{{!item.participants.leave.length}}" class="player-data">(无人)</view>
+      </view>
 
+      <view wx:if="{{item.images&&item.images.length}}" class="m-t-1">
+        <view>
+          <image src="../../images/images.png" style="width: 50rpx;vertical-align: middle;margin:0 6rpx 6rpx 0" mode="widthFix"></image>
+          <text style="position: relative;top: 5rpx;">照片</text>
+        </view>
+        <!-- <image src="{{image}}" wx:for="{{item.images}}" wx:for-item="image" wx:key="image" webp></image> -->
+        <swiper indicator-dots autoplay interval="{{2000}}" duration="{{500}}" style="height: 200px;">
+          <block wx:for="{{item.images}}" wx:key="*this" wx:for-item="image">
+            <swiper-item>
+              <view class="swiper-item">
+                <image src="{{image}}" mode="aspectFill" webp style="width: 100%;height: 200px;" bindtap="previewImages" data-src="{{image}}" data-images="{{item.images}}"></image>
+              </view>
+            </swiper-item>
+          </block>
+        </swiper>
       </view>
 
     </view>
 
   </view>
-</view>
+
+  <view style="height: 132rpx;width: 100%;"></view>
+</scroll-view>

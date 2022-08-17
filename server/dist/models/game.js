@@ -27,6 +27,7 @@ exports.gameSchema = new mongoose.Schema({
         randomMember: String,
     },
     note: String,
+    images: [String],
     participants: {
         confirmed: {
             noTeam: [
@@ -75,6 +76,7 @@ exports.gameSchema = new mongoose.Schema({
                 openId: String,
                 nickName: String,
                 avatarUrl: String,
+                isDelegate: Boolean,
                 reason: String,
                 appliedAt: Date,
             },
@@ -84,6 +86,7 @@ exports.gameSchema = new mongoose.Schema({
                 openId: String,
                 nickName: String,
                 avatarUrl: String,
+                isDelegate: Boolean,
                 reason: String,
                 appliedAt: Date,
             },

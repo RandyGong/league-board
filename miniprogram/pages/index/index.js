@@ -2,7 +2,8 @@
 
 import {
   modal,
-  toast
+  toast,
+  formatDate
 } from '../../utils/util';
 import {request} from '../../utils/request';
 
@@ -19,6 +20,7 @@ Page({
     canIUseOpenData: wx.canIUse('open-data.type.userAvatarUrl') && wx.canIUse('open-data.type.userNickName'), // 如需尝试获取用户信息可改为false
 
 
+    year: new Date().getFullYear(),
     leagueMerged: {},
     leagueRounds: [],
     playerRank: [],
@@ -41,11 +43,11 @@ Page({
     })
   },
   onLoad(options) {
-    if (wx.getUserProfile) {
-      this.setData({
-        canIUseGetUserProfile: true
-      })
-    }
+    // if (wx.getUserProfile) {
+    //   this.setData({
+    //     canIUseGetUserProfile: true
+    //   })
+    // }
 
     console.log({options});
 
@@ -54,10 +56,16 @@ Page({
       menus: ['shareAppMessage', 'shareTimeline']
     });
 
-    // this.getLeagueMerged();
-    // this.getLeagueRounds();
-    // this.getPlayerRank();
     this.getAllData();
+  },
+
+  onShow() {
+    if (typeof this.getTabBar === 'function' &&
+      this.getTabBar()) {
+      this.getTabBar().setData({
+        selected: 2
+      })
+    }
   },
 
   onShareTimeline: function (res) {
@@ -76,6 +84,14 @@ Page({
       success: function (res) {},
     };
   },
+  async onPullDownRefresh() {
+    console.log('onPullDownRefresh');
+    wx.showNavigationBarLoading();
+    await this.getAllData();
+    wx.hideNavigationBarLoading();
+    wx.stopPullDownRefresh();
+  },
+
   formatMergedInfo() {
     if (!this.data.leagueMerged){
       return '土拨鼠2022夏季联赛积分榜';
@@ -293,7 +309,8 @@ Page({
 
   bindDateChange: function (e) {
     console.log('picker发送选择改变，携带值为', e.detail.value);
-    const date = this.getRoundDate(e.detail.value);
+    const date = formatDate(e.detail.value);
+    console.log('date', date);
     this.setData({
       ['editingRound.date']: date
     })

@@ -65,7 +65,11 @@ var LeagueService = /** @class */ (function () {
                         if (leagueRounds && leagueRounds.length) {
                             merged = this.getMerged(leagueRounds);
                         }
-                        return [4 /*yield*/, player_data_1.PlayerData.find({}).sort({ goal: -1 })];
+                        return [4 /*yield*/, player_data_1.PlayerData.find({
+                                nickName: { $exists: false },
+                            }).sort({
+                                goal: -1,
+                            })];
                     case 2:
                         playerData = _a.sent();
                         return [2 /*return*/, {

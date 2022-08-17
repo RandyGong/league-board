@@ -11,7 +11,11 @@ export class LeagueService {
       merged = this.getMerged(leagueRounds);
     }
 
-    const playerData = await PlayerData.find({}).sort({ goal: -1 });
+    const playerData = await PlayerData.find({
+      nickName: { $exists: false },
+    }).sort({
+      goal: -1,
+    });
 
     return {
       merged,

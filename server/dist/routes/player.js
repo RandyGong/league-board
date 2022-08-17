@@ -45,7 +45,19 @@ router.get("/", function (req, res, next) { return __awaiter(void 0, void 0, voi
     var playerData;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, player_data_1.PlayerData.find({})];
+            case 0: return [4 /*yield*/, player_data_1.PlayerData.find()];
+            case 1:
+                playerData = _a.sent();
+                res.send(playerData);
+                return [2 /*return*/];
+        }
+    });
+}); });
+router.get("/all-players-for-board", function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
+    var playerData;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, player_data_1.PlayerData.find({ nickName: { $exists: false } })];
             case 1:
                 playerData = _a.sent();
                 res.send(playerData);
@@ -69,7 +81,9 @@ router.get("/goal-rank", function (req, res, next) { return __awaiter(void 0, vo
     var playerData;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, player_data_1.PlayerData.find({}).sort({ goal: -1 })];
+            case 0: return [4 /*yield*/, player_data_1.PlayerData.find({
+                    nickName: { $exists: false },
+                }).sort({ goal: -1 })];
             case 1:
                 playerData = _a.sent();
                 res.send(playerData);
@@ -81,7 +95,11 @@ router.get("/assist-rank", function (req, res, next) { return __awaiter(void 0, 
     var playerData;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, player_data_1.PlayerData.find({}).sort({ assist: -1 })];
+            case 0: return [4 /*yield*/, player_data_1.PlayerData.find({
+                    nickName: { $exists: false },
+                }).sort({
+                    assist: -1,
+                })];
             case 1:
                 playerData = _a.sent();
                 res.send(playerData);

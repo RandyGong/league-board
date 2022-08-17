@@ -24,8 +24,9 @@
 
 
   <view>
-    <view style="font-size:50rpx;line-height:34px">土拨鼠足球俱乐部</view>
-    <text style="font-size: 37rpx;">2022赛季夏季联赛积分榜</text>
+  <image src="../../images/crown.png" style="width: 100px;margin-bottom: 14rpx;" mode="widthFix"></image>
+    <view style="font-size:50rpx;line-height:34px;font-weight: bold;">土拨鼠足球俱乐部</view>
+    <text style="font-size: 37rpx;font-weight: 500;">{{year}}赛季夏季联赛积分榜</text>
   </view>
 
   <view style="margin-top: 40px;font-size: 37rpx">总积分</view>
@@ -125,7 +126,7 @@
   </view>
 
 
-  <view wx:if="{{!isEditMode}}" class="edit" bindtap="showLogin" style="position: absolute; right: 50rpx; bottom: 50rpx">
+  <view wx:if="{{!isEditMode}}" class="edit" bindtap="showLogin">
   </view>
 
   <!-- <view class='modal-mask' wx:if='{{!editPlayerHidden}}' bindtap='clickMask'>
