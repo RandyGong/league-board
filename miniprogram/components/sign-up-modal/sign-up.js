@@ -84,6 +84,7 @@ Component({
       console.log('gameType', this.data.gameType);
       console.log('gameId', this.data.gameId);
       console.log('isMoveTeam', this.data.isMoveTeam);
+      console.log('team', this.data.team);
 
       if (this.data.isMoveTeam) {
         await this.moveTeam();
@@ -96,6 +97,11 @@ Component({
       console.log('this.data.isDelegate', this.data.isDelegate);
       if (this.data.status !== 'confirmed' && !this.data.userInfo.reason) {
         toast('请说明理由', 'none', 3000, false);
+        return;
+      }
+
+      if (this.data.status === 'confirmed' && this.data.gameType === '对内联赛' && !this.data.team) {
+        toast('请说选择球队', 'none', 3000, false);
         return;
       }
 

@@ -5,7 +5,7 @@
     <view class="create-game-tip">
       <view class="title-wrap" style="text-align: center;">
         <view class="title" style="font-size: 42rpx;">创建比赛</view>
-        <view class="tip m-t-1" style="font-size: 30rpx;">创建一场新比赛，大家一起约球来~</view>
+        <view class="tip m-t-1" style="font-size: 30rpx;">每一个热爱足球的人都有闪闪发光的灵魂~</view>
       </view>
 
     </view>

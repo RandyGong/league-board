@@ -6,6 +6,9 @@ import {
   formatDate
 } from '../../utils/util';
 import {request} from '../../utils/request';
+import {
+  GlobalEventEmitter
+} from '../../utils/eventEmitter';
 
 // 获取应用实例
 const app = getApp()
@@ -54,6 +57,11 @@ Page({
     wx.showShareMenu({
       withShareTicket: true,
       menus: ['shareAppMessage', 'shareTimeline']
+    });
+
+    GlobalEventEmitter.on('boardTabDoubleSelected', async () => {
+      console.log('boardTabDoubleSelected');
+      await this.onPullDownRefresh();
     });
 
     this.getAllData();

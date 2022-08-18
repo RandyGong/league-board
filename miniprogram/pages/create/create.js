@@ -72,6 +72,11 @@ Page({
       await this.getPlayerData(false);
     });
 
+    GlobalEventEmitter.on('currentGameTabDoubleSelected', async () => {
+      console.log('currentGameTabDoubleSelected');
+      await this.refresh();
+    });
+
     // await this.getCurrentGame();
   },
 

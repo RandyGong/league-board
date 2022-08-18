@@ -1,3 +1,5 @@
+const { GlobalEventEmitter } = require("../utils/eventEmitter");
+
 Component({
   data: {
     selected: 0,
@@ -18,7 +20,7 @@ Component({
       "selectedIconPath": "/images/ball.png",
       "diyClass": "diy",
       "animation": "spin",
-      "holder": "holder"
+      "flame": "flame"
     },
     {
       "pagePath": "/pages/index/index",
@@ -33,12 +35,26 @@ Component({
   },
   methods: {
     switchTab(e) {
+      const fromTab = this.data.selected;
+
       const data = e.currentTarget.dataset
       const url = data.path
       wx.switchTab({url})
       this.setData({
         selected: data.index
-      })
+      });
+
+      const toTab = this.data.selected
+
+      if (fromTab === 0 && toTab === 0) {
+        GlobalEventEmitter.emit('gameListTabDoubleSelected');
+      }
+      if (fromTab === 1 && toTab === 1) {
+        GlobalEventEmitter.emit('currentGameTabDoubleSelected');
+      }
+      if (fromTab === 2 && toTab === 2) {
+        GlobalEventEmitter.emit('boardTabDoubleSelected');
+      }
     }
   }
 })

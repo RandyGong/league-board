@@ -1,6 +1,9 @@
 import {
   request
 } from '../../utils/request';
+import {
+  GlobalEventEmitter
+} from '../../utils/eventEmitter';
 
 Page({
   data: {
@@ -11,6 +14,12 @@ Page({
 
   async onLoad() {
     await this.getGameList();
+
+    GlobalEventEmitter.on('gameListTabDoubleSelected', async () => {
+      console.log('gameListTabDoubleSelected');
+      if (this.data.refreshTriggered) return;
+      await this.onPullDownRefresh();
+    });
   },
 
   onShow() {
@@ -24,6 +33,7 @@ Page({
 
   async onPullDownRefresh() {
     console.log('onPullDownRefresh');
+    if (this.data.refreshTriggered) return;
     this.setData({
       refreshTriggered: true,
     })
@@ -67,8 +77,8 @@ Page({
     })
   },
 
-  async getGameList() {
-    const list = await request('GET', `/game`, null, false);
+  async getGameList(isShowLoading = false) {
+    const list = await request('GET', `/game`, null, isShowLoading);
     console.log('list', list);
     for (let item of list) {
       item['isShowMore'] = false;

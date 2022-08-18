@@ -4,5 +4,6 @@
     "modalView": "../modal/modal",
     "login-modal": "../../components/login-modal/login-modal"
   },
-  "enablePullDownRefresh": true
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark"
 }

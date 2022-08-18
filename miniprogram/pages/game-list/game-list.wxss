@@ -1,5 +1,5 @@
 .list-bg {
-  background: linear-gradient(pink, lightskyblue);
+  background: linear-gradient(pink,  lightskyblue);
   height: 100%;
   padding: 20rpx;
   /* overflow: hidden; */
