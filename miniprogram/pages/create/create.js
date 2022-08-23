@@ -164,6 +164,7 @@ Page({
     if (openId) {
       const player = await request('GET', `/players/${openId}`);
       console.log('player already exist?', player);
+      this.requestUserProfileAndShowSignUp(isDelegate, status);
       if (player) {
         this.setUserProfileAndShowSignUp(player, isDelegate, status);
       } else {
@@ -187,11 +188,11 @@ Page({
         if (this.data.getUserProfileTried >= 1) {
           wx.setStorageSync('isDelegateForManualInput', isDelegate);
           wx.setStorageSync('statusForManualInput', status);
-          toast('获取您的用户信息失败，你可以暂时手动填入你的姓名来报名', 'none', 4000, false);
+          // toast('获取您的用户信息失败，你可以暂时手动填入你的姓名来报名', 'none', 4000, false);
 
           const me = this;
           wx.showModal({
-            title: '请输入姓名',
+            title: '获取您的用户信息失败，你可以暂时手动填入你的姓名来报名',
             content: '',
             editable: true,
             success (res) {

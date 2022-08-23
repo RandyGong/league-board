@@ -96,7 +96,7 @@
 }
 
 .blue-border {
-  border: 2px solid rgb(84, 188, 253);
+  border: 2px solid rgb(78, 130, 226);
 }
 
 .red-border {
