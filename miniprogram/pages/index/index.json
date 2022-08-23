@@ -1,7 +1,6 @@
 {
   "navigationBarTitleText": "联赛积分榜",
   "usingComponents": {
-    "modalView": "../modal/modal",
     "login-modal": "../../components/login-modal/login-modal"
   },
   "enablePullDownRefresh": true,

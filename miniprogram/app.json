@@ -2,7 +2,6 @@
   "pages":[
     "pages/create/create",
     "pages/index/index",
-    "pages/logs/logs",
     "pages/game-list/game-list"
   ],
   "window":{

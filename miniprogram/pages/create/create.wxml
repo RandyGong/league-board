@@ -129,8 +129,8 @@
     <view wx:if="{{!isGameInfoEditable && !isPlayerDataEditable}}" class="flex space-around sign-up-buttons">
       <view wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile" data-status="tbd" class="{{isUserAlreadyInGame?'already-in':''}}" style="background: rgb(253, 208, 123); margin-right: 10rpx;">待定</view>
       <view wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile" data-status="leave" class="{{isUserAlreadyInGame?'already-in':''}}" style="background: rgb(255, 176, 190); margin: 0 10rpx;">请假</view>
-      <view wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile" data-status="confirmed" data-delegate="true" style="background: rgb(155, 199, 155); margin: 0 10rpx;">代报名</view>
-      <view wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile" data-status="confirmed" class="{{isUserAlreadyInGame?'already-in':''}}" style="background: lightskyblue; margin-left: 10rpx;">报名</view>
+      <view wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile" data-status="confirmed" class="{{isUserAlreadyInGame?'already-in':''}}" style="background: lightskyblue; margin: 0 10rpx;">报名</view>
+      <view wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile" data-status="confirmed" data-delegate="true" style="background: rgb(155, 199, 155); margin-left: 10rpx;">代报名</view>
     </view>
   </view>
 

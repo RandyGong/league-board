@@ -6,7 +6,7 @@
 
 <view class="flex space-around participant participant-row {{index%2===0?status+'-row1':status+'-row2'}}" wx:for="{{teamParticipants}}" wx:key="id" wx:for-index="index" bindtap="showSignOff" data-item="{{item}}">
   <view style="flex:3;">
-    <image src="{{item.avatarUrl}}" class="{{borderCss}}"></image>
+    <image src="{{item.avatarUrl||'https://iti-images.s3.amazonaws.com/events/0664bb01-b594-94c4-bad9-df66921ad822.webp'}}" class="{{borderCss}}"></image>
     <text>{{item.nickName}}</text>
     <text wx:if="{{item.isDelegate}}" class="delegate">代</text>
   </view>

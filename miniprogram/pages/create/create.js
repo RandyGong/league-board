@@ -31,6 +31,7 @@ Page({
     playerData: null,
     isSharing: false,
     exitFromLocationChoose: false,
+    getUserProfileTried: 0,
 
     userInfo: {},
     hasUserInfo: false,
@@ -119,6 +120,11 @@ Page({
 
   async onPullDownRefresh() {
     console.log('onPullDownRefresh');
+    if (this.data.showGameDataView && (!this.data.hasCurrentGame || this.data.isGameInfoEditable)) {
+      console.log('正在创建或修改比赛，取消下拉更新');
+      wx.stopPullDownRefresh();
+      return;
+    }
     await this.getCurrentGame();
     wx.stopPullDownRefresh();
   },
@@ -144,7 +150,7 @@ Page({
     console.log('status', status);
 
     if (!isDelegate && this.data.isUserAlreadyInGame) {
-      toast('你已经报过名(或待定、请假)了，如需改变，请先取消报名', 'none', 3000, false);
+      toast('你已经报过名(或待定、请假)了，如需改变，请先点击报名信息以取消报名', 'none', 4000, false);
       return;
     }
 
@@ -158,7 +164,6 @@ Page({
     if (openId) {
       const player = await request('GET', `/players/${openId}`);
       console.log('player already exist?', player);
-
       if (player) {
         this.setUserProfileAndShowSignUp(player, isDelegate, status);
       } else {
@@ -175,6 +180,39 @@ Page({
       success: (res) => {
         console.log(`res user profile`, res);
         this.setUserProfileAndShowSignUp(res.userInfo, isDelegate, status);
+      },
+      fail: (res) => {
+        console.log('failed when requestUserProfileAndShowSignUp', res);
+
+        if (this.data.getUserProfileTried >= 1) {
+          wx.setStorageSync('isDelegateForManualInput', isDelegate);
+          wx.setStorageSync('statusForManualInput', status);
+          toast('获取您的用户信息失败，你可以暂时手动填入你的姓名来报名', 'none', 4000, false);
+
+          const me = this;
+          wx.showModal({
+            title: '请输入姓名',
+            content: '',
+            editable: true,
+            success (res) {
+              if (res.confirm) {
+                if (!res.content) {
+                  toast('请输入姓名');
+                  return;
+                }
+                wx.setStorageSync('openId', new Date().getTime());
+                me.setUserProfileAndShowSignUp({nickName: res.content}, isDelegate, status);
+              } 
+            }
+          })
+          return;
+        }
+
+        toast('获取您的用户信息失败，请重试！');
+        const tried = this.data.getUserProfileTried + 1;
+        this.setData({
+          getUserProfileTried: tried
+        });
       }
     })
   },
@@ -184,16 +222,7 @@ Page({
       userInfo: userInfo,
       hasUserInfo: true,
     });
-    // if (this.data.game.type === '对内联赛') {
-    //   this.setData({
-    //     isDelegate: !!isDelegate,
-    //     signUpStatus: status,
-    //     signUpHidden: false
-    //   })
-    // } else {
-
-    // }
-
+    
     this.setData({
       isDelegate: !!isDelegate,
       signUpStatus: status,

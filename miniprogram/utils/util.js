@@ -28,14 +28,14 @@ const makeTwoDigits = dateValue => {
 const getMondayOfNextWeek = () => {
   const today = new Date();
   const first = today.getDate() - today.getDay() + 1;
-  const fifth = first + 6;
+  const fifth = first + 7;
   const friday = new Date(today.setDate(fifth));
   return friday;
 }
 const getThursdayOfCurrentWeek = () => {
   const today = new Date();
   const first = today.getDate() - today.getDay() + 1;
-  const fifth = first + 2;
+  const fifth = first + 3;
   const friday = new Date(today.setDate(fifth));
   return friday;
 }
